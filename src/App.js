@@ -5,7 +5,7 @@ import Registration from "./component/Registration";
 
 function App() {
   return (
-    <div className="App">
+    <div>
       <Router>
         <Header />
         <Route exact path="/registration" component={Registration} />

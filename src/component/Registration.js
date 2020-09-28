@@ -5,6 +5,33 @@ import TextField from "@material-ui/core/TextField";
 
 function Registration() {
   const regRoute = "http://localhost:8080/registration";
+  const [localDate, setLocalDate] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
+
+  const sendUserRegistrationData = () => {
+    Axios.post(
+      regRoute,
+      {
+        firstName: inputStates.fname,
+        lastName: inputStates.lname,
+        userName: inputStates.userName,
+        password: inputStates.password,
+        birthday: localDate,
+        email: inputStates.email,
+        phoneNumber: inputStates.phone,
+      },
+      { withCredentials: true }
+    )
+      .then(function (response) {
+        console.log(response);
+
+        // window.location.href = "/";
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   const [inputStates, setInputStates] = useState({
     fname: "",
@@ -23,32 +50,22 @@ function Registration() {
     });
   }
 
-  const sendUserRegistrationData = () => {
-    Axios.post(regRoute, {
-      firstName: inputStates.fname,
-      lastName: inputStates.lname,
-      userName: inputStates.userName,
-      password: inputStates.password,
-      birthday: localDate,
-      email: inputStates.email,
-      phoneNumber: inputStates.phone,
-    })
-      .then(function (response) {
-        console.log(response);
-
-        window.location.href = "/";
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
-
-  const [localDate, setLocalDate] = useState("2020-09-25");
-  console.log(localDate);
-
   return (
     <div className="forms">
       <div className="form-fields">
+        <label className="labels" htmlFor="usern">
+          Username:
+        </label>
+        <input
+          className="inputs"
+          type="text"
+          id="usern"
+          placeholder="tsmith"
+          value={inputStates.userName}
+          name="userName"
+          onChange={handleChange}
+        ></input>
+
         <label className="labels" htmlFor="fname">
           First name:
         </label>
@@ -88,25 +105,19 @@ function Registration() {
           onChange={handleChange}
         ></input>
 
-        <label className="labels" htmlFor="usern">
-          userName:
+        <label className="labels" htmlFor="date">
+          Birthday:
         </label>
-        <input
-          className="inputs"
-          type="text"
-          id="usern"
-          placeholder="tsmith"
-          value={inputStates.userName}
-          name="userName"
-          onChange={handleChange}
-        ></input>
-
         <div className="calendar">
           <TextField
             id="date"
-            label="Birthday:"
             type="date"
-            InputProps={{ inputProps: { min: "1980-01-01" } }}
+            InputProps={{
+              inputProps: {
+                min: "1900-01-01",
+                max: new Date().toISOString().slice(0, 10),
+              },
+            }}
             value={localDate}
             onChange={(e) => setLocalDate(e.target.value)}
             InputLabelProps={{
