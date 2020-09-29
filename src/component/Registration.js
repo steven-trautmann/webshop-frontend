@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Axios from "axios";
 import "../style/forms.css";
 import TextField from "@material-ui/core/TextField";
+import { LoggedInContext } from "../context/LoggedInContext";
 
 function Registration() {
-  const regRoute = "http://localhost:8080/registration";
+  const regRoute = "http://localhost:8080/user/registration";
   const [localDate, setLocalDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
+
+  const [, setIsLoggedIn] = useContext(LoggedInContext);
 
   const sendUserRegistrationData = () => {
     Axios.post(
@@ -24,9 +27,11 @@ function Registration() {
       { withCredentials: true }
     )
       .then(function (response) {
-        console.log(response);
-
-        // window.location.href = "/";
+        localStorage.setItem("username", response.data.username);
+        localStorage.setItem("userId", response.data.userId);
+        localStorage.setItem("roles", response.data.roles);
+        setIsLoggedIn(true);
+        window.location.href = "/";
       })
       .catch(function (error) {
         console.log(error);
