@@ -19,7 +19,7 @@ function Header(props) {
     setInputType("password");
   };
 
-  const changeToOpenSrc = (event) => {
+  const changeToOpenSrc = () => {
     setEyeSrc("/images/eyes-open.svg");
     setInputType("text");
   };
@@ -27,6 +27,12 @@ function Header(props) {
   const handleChange = (event) => {
     setLogInStates({ ...logInStates, [event.target.name]: event.target.value });
   };
+
+  const handleEnterKeydown = (event) => {
+    if (event.keyCode === 13){
+      logIn();
+    }
+  }
 
   const logIn = () => {
     if (logInStates.username !== "" && logInStates.password !== "") {
@@ -100,6 +106,7 @@ function Header(props) {
                     <input
                       type="text"
                       onChange={handleChange}
+                      onKeyDown={handleEnterKeydown}
                       name="username"
                     ></input>
                   </td>
@@ -110,6 +117,7 @@ function Header(props) {
                     <input
                       type={inputType}
                       onChange={handleChange}
+                      onKeyDown={handleEnterKeydown}
                       name="password"
                     ></input>
                     <button
