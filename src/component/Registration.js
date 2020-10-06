@@ -11,6 +11,9 @@ function Registration() {
   }
 
   const regRoute = "http://localhost:8080/user/registration";
+  const checkEmailRoute = "http://localhost:8080/user/check-email";
+  const checkUserNameRoute = "http://localhost:8080/user/check-username";
+  const checkPhoneNumberRoute = "http://localhost:8080/user/check-phone";
   const [localDate, setLocalDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
@@ -23,7 +26,10 @@ function Registration() {
   const [passwordIsTooSmall, setPasswordIsTooSmall] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(true);
   const [unnkownError, setUnnkownError] = useState(false);
-  const [constraintErrorMsg, setConstraintErrorMsg] = useState("");
+
+  const [emailIsUnique, setEmailIsUnique] = useState(true);
+  const [phoneNumberIsUnique, setPhoneNumberIsUnique] = useState(true);
+  const [userNameIsUnique, setUserNameIsUnique] = useState(true);
 
   const [, setIsLoggedIn] = useContext(LoggedInContext);
 
@@ -48,7 +54,14 @@ function Registration() {
     return re.test(String(newEmail === "" ? inputStates.email : newEmail).toLowerCase());
   }
 
-  const sendUserRegistrationData = () => {
+  const checkIfFieldsAreFilled = () => {
+    return inputStates.fname !== "" && inputStates.lname !== "" 
+    && inputStates.userName !== "" && inputStates.password !== "" && inputStates.password2 !== "" 
+    && inputStates.email !== "" && inputStates.phone !== "" && localDate !== "";
+  }
+
+  //and set the states according to it
+  const checkIfFieldsAreFilledCorrectly = () => {
     if (inputStates.password !== inputStates.password2){
       setMistypedPassword(true);
     } else {
@@ -66,13 +79,18 @@ function Registration() {
     } else {
       setEmailIsValid(true);
     }
+    //uniqueness of username, phone number and e-mail is checked dynamically
+  }
 
-    //checks if everything is filled
-    if (inputStates.fname !== "" && inputStates.lname !== "" 
-      && inputStates.userName !== "" && inputStates.password !== "" && inputStates.email !== ""
-      && inputStates.phone !== "" && localDate !== ""){
-        //checks if everything is filled correctly
-        if (!mistypedPassword && !passwordIsTooSmall && emailIsValid){
+  const sendUserRegistrationData = () => {
+    checkIfFieldsAreFilledCorrectly();
+
+    // checks if everything is filled
+    if (checkIfFieldsAreFilled()){
+        //checks if everything is filled correctly (- again, because setting the states might be slower)
+        if (inputStates.password === inputStates.password2 && 
+          inputStates.password.length >= 5 && checkEmailValidity("") 
+          && userNameIsUnique && emailIsUnique && phoneNumberIsUnique){
           Axios.post(
             regRoute,
             {
@@ -94,33 +112,32 @@ function Registration() {
             window.location.href = "/";
           })
           .catch(function (error) {
-            if (error.response.status === 400){
-              if (error.response.data.constraintError != null){
-                let errorMsg = error.response.data.constraintError.slice(error.response.data.constraintError.indexOf("Key"));
-                if (errorMsg.includes("user_name")){
-                  errorMsg = errorMsg.replace("user_name", "Username")
-                } else if (errorMsg.includes("email")){
-                  errorMsg = errorMsg.replace("email", "E-mail")
-                } else if (errorMsg.includes("phone_number")){
-                  errorMsg = errorMsg.replace("phone_number", "Phone Number")
-                }
-                setConstraintErrorMsg(errorMsg);
-                setUnnkownError(false);
-              } else if (error.response.data.nullableError != null){
-                setMissingInputs(true);
-              } else if (error.response.data.emailValidityError != null){
-                setEmailIsValid(false);
-              }
-            } else {
-              setConstraintErrorMsg("");
-              setUnnkownError(true);
-            }
+            handleErrors(error);
           });
         }
     } else {
       setMissingInputs(true);
     }
   };
+
+  const handleErrors = (error) => {
+    if (error.response.status === 400){
+      if (error.response.data.nullableError != null){
+        setMissingInputs(true);
+      } else if (error.response.data.emailValidityError != null){
+        setEmailIsValid(false);
+      } else if (error.response.data.emailUniquenessError != null){
+        setEmailIsUnique(false);
+      } else if (error.response.data.phoneNumberUniquenessError != null){
+        setPhoneNumberIsUnique(false);
+      } else if (error.response.data.userNameUniquenessError != null){
+        setUserNameIsUnique(false);
+      }
+      setUnnkownError(false);
+    } else {
+      setUnnkownError(true);
+    }
+  }
 
   const changeToClosedSrc = (passwordNum) => {
     if (passwordNum === 1){
@@ -151,12 +168,44 @@ function Registration() {
     setMissingInputs(false);
   }
 
-  function handleChange(e) {
+  function handleInputChangeCasual(e) {
     const value = e.currentTarget.value;
     setInputStates({
       ...inputStates,
       [e.target.name]: value,
     });
+    if (missingInputs && value !== ""){
+      checkMissingInputs(e.target.name);
+    }
+  }
+
+  function handleUserNameChange(e) {
+    const value = e.currentTarget.value;
+    setInputStates({
+      ...inputStates,
+      [e.target.name]: value,
+    });
+    if (value === ""){
+      setUserNameIsUnique(true);
+    } else {
+      setUserNameUniqueness(value);
+    }
+    if (missingInputs && value !== ""){
+      checkMissingInputs(e.target.name);
+    }
+  }
+
+  function handlePhoneNumberChange(e) {
+    const value = e.currentTarget.value;
+    setInputStates({
+      ...inputStates,
+      [e.target.name]: value,
+    });
+    if (value === ""){
+      setPhoneNumberIsUnique(true);
+    } else {
+      setPhoneNumberUniqueness(value);
+    }
     if (missingInputs && value !== ""){
       checkMissingInputs(e.target.name);
     }
@@ -170,6 +219,15 @@ function Registration() {
     });
     if (checkEmailValidity(value)){
       setEmailIsValid(true);
+      setEmailUniqueness(value);
+    } else {
+      setEmailIsUnique(true);
+    }
+    if (value === ""){
+      setEmailIsUnique(true);
+    }
+    if (missingInputs && value !== ""){
+      checkMissingInputs(e.target.name);
     }
   }
 
@@ -194,13 +252,66 @@ function Registration() {
     }
   }
 
+  const setPhoneNumberUniqueness = (phoneNumber) => {
+    if (phoneNumber !== ""){
+      Axios.post(
+        checkPhoneNumberRoute,
+        {
+          phone: phoneNumber,
+        },
+        { withCredentials: true }
+      )
+      .then(function (response) {
+        setPhoneNumberIsUnique(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+    }
+  }
+
+  const setUserNameUniqueness = (userName) => {
+    if (userName !== ""){
+      Axios.post(
+        checkUserNameRoute,
+        {
+          username: userName,
+        },
+        { withCredentials: true }
+      )
+      .then(function (response) {
+        setUserNameIsUnique(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+    }
+  }
+
+  const setEmailUniqueness = (email) => {
+    if (emailIsValid && email !== ""){
+      Axios.post(
+        checkEmailRoute,
+        {
+          email: email,
+        },
+        { withCredentials: true }
+      )
+      .then(function (response) {
+        setEmailIsUnique(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+    }
+  }
+
   return (
     <div className="forms">
       {unnkownError ? <h3 style={{textAlign: "center"}}>We're deeply sorry, unexpected error occured!</h3> : null}
-      {constraintErrorMsg !== "" ? <h3 style={{textAlign: "center"}}>{constraintErrorMsg}</h3> : null}
       <div className="form-fields">
         <label className="labels" htmlFor="usern">
-          Username:
+          Username: {userNameIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -209,7 +320,7 @@ function Registration() {
           placeholder="tsmith"
           value={inputStates.userName}
           name="userName"
-          onChange={handleChange}
+          onChange={handleUserNameChange}
           onKeyDown={handleEnterKeydown}
         ></input>
 
@@ -223,7 +334,7 @@ function Registration() {
           placeholder="Thomas"
           value={inputStates.fname}
           name="fname"
-          onChange={handleChange}
+          onChange={handleInputChangeCasual}
           onKeyDown={handleEnterKeydown}
         ></input>
 
@@ -237,12 +348,13 @@ function Registration() {
           placeholder="Smith"
           value={inputStates.lname}
           name="lname"
-          onChange={handleChange}
+          onChange={handleInputChangeCasual}
           onKeyDown={handleEnterKeydown}
         ></input>
 
         <label className="labels" htmlFor="email">
-          E-mail: {emailIsValid ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Invalid</p>}
+          E-mail: {emailIsValid ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Invalid</p>} 
+          {emailIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -276,7 +388,7 @@ function Registration() {
           />
         </div>
         <label className="labels" htmlFor="phone">
-          Phone Number:
+          Phone Number: {phoneNumberIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -285,7 +397,7 @@ function Registration() {
           placeholder="02011111111"
           value={inputStates.phone}
           name="phone"
-          onChange={handleChange}
+          onChange={handlePhoneNumberChange}
           onKeyDown={handleEnterKeydown}
         ></input>
 
@@ -367,7 +479,7 @@ function Registration() {
           </button>
         </div>
         {mistypedPassword ? <p style={{textAlign: "center"}}>The given passwords doesn't match!</p> : null}
-        {missingInputs ? <p className="speech-bubble">You need to fill all input fields to Register!</p> : null}
+        {missingInputs ? <p className="speech-bubble">You need to fill out all input fields to Register!</p> : null}
         <button className="buttons" onClick={sendUserRegistrationData}>
           Send
         </button>
