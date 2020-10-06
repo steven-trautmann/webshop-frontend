@@ -1,0 +1,10 @@
+{
+    "files.watcherExclude": {
+        "**/.DS_Store": true,
+        "**/.svn": true,
+        "**/CVS": true
+    },
+    "files.exclude": {
+        "**/node_modules": true
+    }
+}

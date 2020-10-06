@@ -22,6 +22,8 @@ function Registration() {
   const [password2InputType,setPassword2InputType] = useState("password");
   const [passwordIsTooSmall, setPasswordIsTooSmall] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(true);
+  const [unnkownError, setUnnkownError] = useState(false);
+  const [constraintErrorMsg, setConstraintErrorMsg] = useState("");
 
   const [, setIsLoggedIn] = useContext(LoggedInContext);
 
@@ -92,7 +94,27 @@ function Registration() {
             window.location.href = "/";
           })
           .catch(function (error) {
-            console.log(error);
+            if (error.response.status === 400){
+              if (error.response.data.constraintError != null){
+                let errorMsg = error.response.data.constraintError.slice(error.response.data.constraintError.indexOf("Key"));
+                if (errorMsg.includes("user_name")){
+                  errorMsg = errorMsg.replace("user_name", "Username")
+                } else if (errorMsg.includes("email")){
+                  errorMsg = errorMsg.replace("email", "E-mail")
+                } else if (errorMsg.includes("phone_number")){
+                  errorMsg = errorMsg.replace("phone_number", "Phone Number")
+                }
+                setConstraintErrorMsg(errorMsg);
+                setUnnkownError(false);
+              } else if (error.response.data.nullableError != null){
+                setMissingInputs(true);
+              } else if (error.response.data.emailValidityError != null){
+                setEmailIsValid(false);
+              }
+            } else {
+              setConstraintErrorMsg("");
+              setUnnkownError(true);
+            }
           });
         }
     } else {
@@ -174,6 +196,8 @@ function Registration() {
 
   return (
     <div className="forms">
+      {unnkownError ? <h3 style={{textAlign: "center"}}>We're deeply sorry, unexpected error occured!</h3> : null}
+      {constraintErrorMsg !== "" ? <h3 style={{textAlign: "center"}}>{constraintErrorMsg}</h3> : null}
       <div className="form-fields">
         <label className="labels" htmlFor="usern">
           Username:
