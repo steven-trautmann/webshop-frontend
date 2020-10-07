@@ -2,6 +2,14 @@ import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 import { LoggedInContext } from "../context/LoggedInContext";
+import styled from "styled-components";
+
+const NavDiv = styled.div`
+    display: flex;
+    position: absolute;
+    right: 0;
+    height: 100%;
+  `;
 
 function Header(props) {
   const [logInStates, setLogInStates] = useState({
@@ -15,6 +23,7 @@ function Header(props) {
   const [networkError, setNetworkError] = useState(false);
 
   const changeToClosedSrc = () => {
+    console.log("fasz")
     setEyeSrc("/images/eyes-closed.svg");
     setInputType("password");
   };
@@ -29,10 +38,10 @@ function Header(props) {
   };
 
   const handleEnterKeydown = (event) => {
-    if (event.keyCode === 13){
+    if (event.keyCode === 13) {
       logIn();
     }
-  }
+  };
 
   const logIn = () => {
     if (logInStates.username !== "" && logInStates.password !== "") {
@@ -49,9 +58,13 @@ function Header(props) {
           window.location.href = "/";
         })
         .catch((error) => {
-          if (!error.status) {
+          console.log(error.response);
+          console.log(error.response);
+          if (!error.response) {
+            setFailedLogIn(false);
             setNetworkError(true);
           } else {
+            setNetworkError(false);
             setFailedLogIn(true);
           }
         });
@@ -79,85 +92,94 @@ function Header(props) {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        height: "5rem",
+        position: "fixed",
+        width: "100%",
+        display: "flex",
+        top: 0,
+        backgroundColor: "white",
+      }}
+    >
       <Link to="/">
         <button>Home</button>
       </Link>
-
       {isLoggedIn ? (
-        <div>
-          <p>Hello there, {localStorage.getItem("username")}</p>
-          <button onClick={addProduct}>add product (authenticated)</button>
-          <button onClick={logOut}>log out</button>
-        </div>
+        <NavDiv>
+          <p> Hello there, {localStorage.getItem("username")}</p>
+          <button onClick={addProduct}> add product(authenticated) </button>
+          <button onClick={logOut}> log out </button>
+        </NavDiv>
       ) : (
-        <div>
-          <Link to="/registration">
-            <button>Register</button>
-          </Link>
-
-          <div>
-            <h4>Log In:</h4>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Username: </td>
-                  <td>
-                    <input
-                      type="text"
-                      onChange={handleChange}
-                      onKeyDown={handleEnterKeydown}
-                      name="username"
-                    ></input>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Password: </td>
-                  <td>
-                    <input
-                      type={inputType}
-                      onChange={handleChange}
-                      onKeyDown={handleEnterKeydown}
-                      name="password"
-                    ></input>
-                    <button
-                      style={{
-                        width: "3vw",
-                        height: "2vw",
-                        padding: "0",
-                        border: "0",
-                        borderRadius: "40%",
-                        outline: "none",
-                        cursor: "pointer",
-                      }}
-                      onMouseDown={changeToOpenSrc}
-                      onMouseUp={changeToClosedSrc}
-                      onMouseOut={changeToClosedSrc}
-                    >
-                      <img
-                        src={eyeSrc}
-                        alt="see password"
-                        style={{ width: "2.5vw", height: "2vw" }}
-                      />
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            {failedLogIn ? (
-              <p style={{ color: "red", fontSize: "1rem" }}>
-                Wrong Username and/or Password
-              </p>
-            ) : null}
-            {networkError ? (
-              <p style={{ color: "red", fontSize: "1rem" }}>
-                Unexpected network error occured.
-              </p>
-            ) : null}
-            <button onClick={logIn}>Log In</button>
-          </div>
-        </div>
-      )}
+          <NavDiv>
+            <div style={{ display: "inline-flex" }}>
+              <table>
+                <tbody>
+                  <tr>
+                    <td> Username: </td>
+                    <td>
+                      <input
+                        type="text"
+                        onChange={handleChange}
+                        onKeyDown={handleEnterKeydown}
+                        name="username"
+                      ></input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td> Password: </td>
+                    <td>
+                      <input
+                        type={inputType}
+                        onChange={handleChange}
+                        onKeyDown={handleEnterKeydown}
+                        name="password"
+                      ></input>
+                      <button
+                        style={{
+                          width: "2rem",
+                          height: "2rem",
+                          padding: "0",
+                          border: "0",
+                          borderRadius: "40%",
+                          outline: "none",
+                          cursor: "pointer",
+                          display: "relative",
+                          top: "0.4rem",
+                        }}
+                        onMouseDown={changeToOpenSrc}
+                        onMouseUp={changeToClosedSrc}
+                        onMouseOut={changeToClosedSrc}
+                      >
+                        <img
+                          src={eyeSrc}
+                          alt="see password"
+                          style={{ width: "1.5rem", height: "1rem" }}
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              {failedLogIn ? (
+                <p style={{ color: "red", fontSize: "1rem" }}>
+                  Wrong Username and / or Password
+                </p>
+              ) : null}
+              {networkError ? (
+                <p style={{ color: "red", fontSize: "1rem" }}>
+                  Unexpected network error occured.
+                </p>
+              ) : null}
+              <button onClick={logIn}> Log In </button>
+            </div>
+            <p> Or </p>
+            <Link to="/registration">
+              <button> Register </button>
+            </Link>
+          </NavDiv>
+        )}
     </div>
   );
 }

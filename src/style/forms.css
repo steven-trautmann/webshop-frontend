@@ -27,6 +27,24 @@
   border-radius: 10%;
 }
 
+.form-fields .calendar-inputs-2 {
+  font-size: 1rem;
+  border: 0;
+  padding: 1%;
+  border-radius: 20%;
+  margin: 0.2rem;
+  width: 2rem;
+}
+
+.form-fields .calendar-inputs-4 {
+  font-size: 1rem;
+  border: 0;
+  padding: 1%;
+  border-radius: 20%;
+  margin: 0.2rem;
+  width: 4rem;
+}
+
 .form-fields .password-inputs {
   display: flex;
   flex-wrap: wrap;
@@ -74,10 +92,4 @@
 .form-fields .buttons:hover {
   box-shadow: 1rem 1rem 1.5rem #8590aa;
   cursor: pointer;
-}
-
-.calendar {
-  font-weight: 700;
-  padding: 0 24%;
-  margin: auto;
 }

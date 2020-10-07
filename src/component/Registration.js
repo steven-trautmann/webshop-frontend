@@ -2,11 +2,11 @@ import React, { useState, useContext } from "react";
 import Axios from "axios";
 import "../style/forms.css";
 import "../style/speech-bubble.css";
-import TextField from "@material-ui/core/TextField";
 import { LoggedInContext } from "../context/LoggedInContext";
+import moment from "moment";
 
 function Registration() {
-  if (localStorage.getItem("username") != null){
+  if (localStorage.getItem("username") != null) {
     window.location.href = "/";
   }
 
@@ -14,22 +14,25 @@ function Registration() {
   const checkEmailRoute = "http://localhost:8080/user/check-email";
   const checkUserNameRoute = "http://localhost:8080/user/check-username";
   const checkPhoneNumberRoute = "http://localhost:8080/user/check-phone";
-  const [localDate, setLocalDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
-  const [mistypedPassword, setMistypedPassword] = useState(false);
-  const [missingInputs, setMissingInputs] = useState(false);
+
   const [eyeSrc, setEyeSrc] = useState("/images/eyes-closed.svg");
   const [eyeSrc2, setEyeSrc2] = useState("/images/eyes-closed.svg");
-  const [passwordInputType,setPasswordInputType] = useState("password");
-  const [password2InputType,setPassword2InputType] = useState("password");
+  const [passwordInputType, setPasswordInputType] = useState("password");
+  const [password2InputType, setPassword2InputType] = useState("password");
+
+  const [mistypedPassword, setMistypedPassword] = useState(false);
+  const [missingInputs, setMissingInputs] = useState(false);
   const [passwordIsTooSmall, setPasswordIsTooSmall] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(true);
+  const [birthdayIsValid, setBirthdayIsValid] = useState(true);
+  const [birthdayIsInRange, setBirthdayIsInRange] = useState(true);
   const [unnkownError, setUnnkownError] = useState(false);
-
   const [emailIsUnique, setEmailIsUnique] = useState(true);
   const [phoneNumberIsUnique, setPhoneNumberIsUnique] = useState(true);
   const [userNameIsUnique, setUserNameIsUnique] = useState(true);
+  const [birthdayMonth, setBirthdayMonth] = useState("");
+  const [birthdayDay, setBirthdayDay] = useState("");
+  const [birthdayYear, setBirthdayYear] = useState("");
 
   const [, setIsLoggedIn] = useContext(LoggedInContext);
 
@@ -44,7 +47,7 @@ function Registration() {
   });
 
   const handleEnterKeydown = (event) => {
-    if (event.keyCode === 13){
+    if (event.keyCode === 13) {
       sendUserRegistrationData();
     }
   }
@@ -55,29 +58,34 @@ function Registration() {
   }
 
   const checkIfFieldsAreFilled = () => {
-    return inputStates.fname !== "" && inputStates.lname !== "" 
-    && inputStates.userName !== "" && inputStates.password !== "" && inputStates.password2 !== "" 
-    && inputStates.email !== "" && inputStates.phone !== "" && localDate !== "";
+    return inputStates.fname !== "" && inputStates.lname !== ""
+      && inputStates.userName !== "" && inputStates.password !== "" && inputStates.password2 !== ""
+      && inputStates.email !== "" && inputStates.phone !== "";
   }
 
   //and set the states according to it
   const checkIfFieldsAreFilledCorrectly = () => {
-    if (inputStates.password !== inputStates.password2){
+
+    if (inputStates.password !== inputStates.password2) {
       setMistypedPassword(true);
     } else {
       setMistypedPassword(false);
     }
 
-    if (inputStates.password.length < 5){
+    if (inputStates.password.length < 5) {
       setPasswordIsTooSmall(true);
     } else {
       setPasswordIsTooSmall(false);
     }
 
-    if(!checkEmailValidity("")){
+    if (!checkEmailValidity("")) {
       setEmailIsValid(false);
     } else {
       setEmailIsValid(true);
+    }
+
+    if (checkBirthdayValidityCasually()) {
+      checkBirthdayIsInRangeCasually()
     }
     //uniqueness of username, phone number and e-mail is checked dynamically
   }
@@ -86,24 +94,24 @@ function Registration() {
     checkIfFieldsAreFilledCorrectly();
 
     // checks if everything is filled
-    if (checkIfFieldsAreFilled()){
-        //checks if everything is filled correctly (- again, because setting the states might be slower)
-        if (inputStates.password === inputStates.password2 && 
-          inputStates.password.length >= 5 && checkEmailValidity("") 
-          && userNameIsUnique && emailIsUnique && phoneNumberIsUnique){
-          Axios.post(
-            regRoute,
-            {
-              firstName: inputStates.fname,
-              lastName: inputStates.lname,
-              userName: inputStates.userName,
-              password: inputStates.password,
-              birthday: localDate,
-              email: inputStates.email,
-              phoneNumber: inputStates.phone,
-            },
-            { withCredentials: true }
-          )
+    if (checkIfFieldsAreFilled()) {
+      //checks if everything is filled correctly (- again, because setting the states might be slower)
+      if (inputStates.password === inputStates.password2 &&
+        inputStates.password.length >= 5 && checkEmailValidity("") && checkBirthdayValidityCasually() && checkBirthdayIsInRangeCasually()
+        && userNameIsUnique && emailIsUnique && phoneNumberIsUnique) {
+        Axios.post(
+          regRoute,
+          {
+            firstName: inputStates.fname,
+            lastName: inputStates.lname,
+            userName: inputStates.userName,
+            password: inputStates.password,
+            birthday: Date.parse(birthdayMonth + "-" + birthdayDay + "-" + birthdayYear),
+            email: inputStates.email,
+            phoneNumber: inputStates.phone,
+          },
+          { withCredentials: true }
+        )
           .then(function (response) {
             localStorage.setItem("username", response.data.username);
             localStorage.setItem("userId", response.data.userId);
@@ -114,23 +122,23 @@ function Registration() {
           .catch(function (error) {
             handleErrors(error);
           });
-        }
+      }
     } else {
       setMissingInputs(true);
     }
   };
 
   const handleErrors = (error) => {
-    if (error.response.status === 400){
-      if (error.response.data.nullableError != null){
+    if (error.response.status === 400) {
+      if (error.response.data.nullableError != null) {
         setMissingInputs(true);
-      } else if (error.response.data.emailValidityError != null){
+      } else if (error.response.data.emailValidityError != null) {
         setEmailIsValid(false);
-      } else if (error.response.data.emailUniquenessError != null){
+      } else if (error.response.data.emailUniquenessError != null) {
         setEmailIsUnique(false);
-      } else if (error.response.data.phoneNumberUniquenessError != null){
+      } else if (error.response.data.phoneNumberUniquenessError != null) {
         setPhoneNumberIsUnique(false);
-      } else if (error.response.data.userNameUniquenessError != null){
+      } else if (error.response.data.userNameUniquenessError != null) {
         setUserNameIsUnique(false);
       }
       setUnnkownError(false);
@@ -140,7 +148,7 @@ function Registration() {
   }
 
   const changeToClosedSrc = (passwordNum) => {
-    if (passwordNum === 1){
+    if (passwordNum === 1) {
       setEyeSrc("/images/eyes-closed.svg");
       setPasswordInputType("password");
     } else {
@@ -150,7 +158,7 @@ function Registration() {
   };
 
   const changeToOpenSrc = (passwordNum) => {
-    if (passwordNum === 1){
+    if (passwordNum === 1) {
       setEyeSrc("/images/eyes-open.svg");
       setPasswordInputType("text")
     } else {
@@ -159,9 +167,9 @@ function Registration() {
     }
   };
 
-  function checkMissingInputs(inputName){
+  function checkMissingInputs(inputName) {
     for (let [key, value] of Object.entries(inputStates)) {
-      if (inputName !== key && value === ""){
+      if (inputName !== key && value === "") {
         return;
       }
     }
@@ -174,9 +182,144 @@ function Registration() {
       ...inputStates,
       [e.target.name]: value,
     });
-    if (missingInputs && value !== ""){
+    if (missingInputs && value !== "") {
       checkMissingInputs(e.target.name);
     }
+  }
+
+  function handleBirthdayChange(e) {
+    const value = e.currentTarget.value;
+    if (e.currentTarget.name === "month") {
+      setBirthdayMonth(value);
+      if (!birthdayIsValid) {
+        let validity = checkBirthdayValidity(value, "month");
+        setBirthdayIsValid(validity);
+        if (validity) {
+          setBirthdayIsInRange(checkBirthdayIsInRange(value, "month"));
+        }
+      } else if (!birthdayIsInRange) {
+        setBirthdayIsInRange(checkBirthdayIsInRange(value, "month"));
+      }
+    } else if (e.currentTarget.name === "day") {
+      setBirthdayDay(value);
+      if (!birthdayIsValid) {
+        let validity = checkBirthdayValidity(value, "day");
+        setBirthdayIsValid(validity);
+        if (validity) {
+          setBirthdayIsInRange(checkBirthdayIsInRange(value, "day"));
+        }
+      } else if (!birthdayIsInRange) {
+        setBirthdayIsInRange(checkBirthdayIsInRange(value, "day"));
+      }
+    } else {
+      setBirthdayYear(value);
+      if (!birthdayIsValid) {
+        let validity = checkBirthdayValidity(value, "year");
+        setBirthdayIsValid(validity);
+        if (validity) {
+          setBirthdayIsInRange(checkBirthdayIsInRange(value, "year"));
+        }
+      } else if (!birthdayIsInRange) {
+        setBirthdayIsInRange(checkBirthdayIsInRange(value, "year"));
+      }
+    }
+  }
+
+  //and sets it as well -- only check if its in range if its valid in the first place (do not display error either)
+  const checkBirthdayIsInRangeCasually = () => {
+    if (!checkBirthdayValidity && birthdayMonth === "" && birthdayDay === "" && birthdayYear === "") {
+      setBirthdayIsInRange(true);
+      return true;
+    }
+
+    let today = new Date();
+    let dd = today.getDate().toString();
+    if (dd.length === 1) {
+      dd = "0" + dd;
+    }
+    let mm = (today.getMonth() + 1).toString();
+    if (mm.length === 1) {
+      mm = "0" + mm;
+    }
+    let yyyy = today.getFullYear();
+
+    let isAfter = moment("0".repeat(4 - birthdayYear.length) + birthdayYear + "-" + birthdayMonth + "-" + birthdayDay).isAfter("1900-01-01");
+    let isBefore = moment("0".repeat(4 - birthdayYear.length) + birthdayYear + "-" + birthdayMonth + "-" + birthdayDay).isBefore(yyyy + "-" + mm + "-" + dd);
+    if (isAfter && isBefore) {
+      setBirthdayIsInRange(true);
+      return true;
+    } else {
+      setBirthdayIsInRange(false);
+      return false;
+    }
+  }
+
+  const checkBirthdayIsInRange = (currentValue, valueType) => {
+    let today = new Date();
+    let dd = today.getDate().toString();
+
+    if (dd.length === 1) {
+      dd = "0" + dd;
+    }
+    let mm = (today.getMonth() + 1).toString();
+    if (mm.length === 1) {
+      mm = "0" + mm;
+    }
+    let yyyy = today.getFullYear();
+    let birthDayString = "";
+
+    if (valueType === "month") {
+      birthDayString = "0".repeat(4 - birthdayYear.length) + birthdayYear + "-" + currentValue + "-" + birthdayDay;
+    } else if (valueType === "day") {
+      birthDayString = "0".repeat(4 - birthdayYear.length) + birthdayYear + "-" + birthdayMonth + "-" + currentValue;
+    } else {
+      birthDayString = "0".repeat(4 - currentValue.length) + currentValue + "-" + birthdayMonth + "-" + birthdayDay;
+    }
+    let isAfter = moment(birthDayString).isAfter("1900-01-01", "year");
+    let isBefore = moment(birthDayString).isBefore(yyyy + "-" + mm + "-" + dd);
+    if (isAfter && isBefore) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  //and sets it as well
+  const checkBirthdayValidityCasually = () => {
+    if (birthdayMonth === "" && birthdayDay === "" && birthdayYear === "") {
+      setBirthdayIsValid(true);
+      return true;
+    }
+    let validity = moment(birthdayMonth + "-" + birthdayDay + "-" + birthdayYear, 'MM-DD-YYYY', true).isValid();
+    setBirthdayIsValid(validity);
+    if (!validity) {
+      setBirthdayIsInRange(true);
+    }
+    return validity;
+  }
+
+  const checkBirthdayValidity = (currentValue, valueType) => {
+    let birthdayString = "";
+    if (valueType === "month") {
+      if (currentValue === "" && birthdayDay === "" && birthdayYear === "") {
+        return true;
+      }
+      birthdayString = currentValue + "-" + birthdayDay + "-" + birthdayYear;
+
+    } else if (valueType === "day") {
+      if (birthdayMonth === "" && currentValue === "" && birthdayYear === "") {
+        return true;
+      }
+      birthdayString = birthdayMonth + "-" + currentValue + "-" + birthdayYear;
+
+    } else {
+      if (birthdayMonth === "" && birthdayDay === "" && currentValue === "") {
+        return true;
+      }
+      birthdayString = birthdayMonth + "-" + birthdayDay + "-" + currentValue;
+    }
+
+    return moment(birthdayString, 'MM-DD-YYYY', true).isValid();
   }
 
   function handleUserNameChange(e) {
@@ -185,12 +328,12 @@ function Registration() {
       ...inputStates,
       [e.target.name]: value,
     });
-    if (value === ""){
+    if (value === "") {
       setUserNameIsUnique(true);
     } else {
       setUserNameUniqueness(value);
     }
-    if (missingInputs && value !== ""){
+    if (missingInputs && value !== "") {
       checkMissingInputs(e.target.name);
     }
   }
@@ -201,12 +344,12 @@ function Registration() {
       ...inputStates,
       [e.target.name]: value,
     });
-    if (value === ""){
+    if (value === "") {
       setPhoneNumberIsUnique(true);
     } else {
       setPhoneNumberUniqueness(value);
     }
-    if (missingInputs && value !== ""){
+    if (missingInputs && value !== "") {
       checkMissingInputs(e.target.name);
     }
   }
@@ -217,16 +360,16 @@ function Registration() {
       ...inputStates,
       [e.target.name]: value,
     });
-    if (checkEmailValidity(value)){
+    if (checkEmailValidity(value)) {
       setEmailIsValid(true);
       setEmailUniqueness(value);
     } else {
       setEmailIsUnique(true);
     }
-    if (value === ""){
+    if (value === "") {
       setEmailIsUnique(true);
     }
-    if (missingInputs && value !== ""){
+    if (missingInputs && value !== "") {
       checkMissingInputs(e.target.name);
     }
   }
@@ -237,23 +380,23 @@ function Registration() {
       ...inputStates,
       [e.target.name]: value,
     });
-    if (e.target.name === "password"){
-      if (passwordIsTooSmall && value.length >= 5){
+    if (e.target.name === "password") {
+      if (passwordIsTooSmall && value.length >= 5) {
         setPasswordIsTooSmall(false);
       }
-      if (mistypedPassword && value === inputStates.password2){
+      if (mistypedPassword && value === inputStates.password2) {
         setMistypedPassword(false);
       }
-    } else if (mistypedPassword && value === inputStates.password){
+    } else if (mistypedPassword && value === inputStates.password) {
       setMistypedPassword(false);
     }
-    if (missingInputs && value !== ""){
+    if (missingInputs && value !== "") {
       checkMissingInputs(e.target.name);
     }
   }
 
   const setPhoneNumberUniqueness = (phoneNumber) => {
-    if (phoneNumber !== ""){
+    if (phoneNumber !== "") {
       Axios.post(
         checkPhoneNumberRoute,
         {
@@ -261,17 +404,17 @@ function Registration() {
         },
         { withCredentials: true }
       )
-      .then(function (response) {
-        setPhoneNumberIsUnique(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
+        .then(function (response) {
+          setPhoneNumberIsUnique(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
     }
   }
 
   const setUserNameUniqueness = (userName) => {
-    if (userName !== ""){
+    if (userName !== "") {
       Axios.post(
         checkUserNameRoute,
         {
@@ -279,17 +422,17 @@ function Registration() {
         },
         { withCredentials: true }
       )
-      .then(function (response) {
-        setUserNameIsUnique(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
+        .then(function (response) {
+          setUserNameIsUnique(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
     }
   }
 
   const setEmailUniqueness = (email) => {
-    if (emailIsValid && email !== ""){
+    if (emailIsValid && email !== "") {
       Axios.post(
         checkEmailRoute,
         {
@@ -297,21 +440,21 @@ function Registration() {
         },
         { withCredentials: true }
       )
-      .then(function (response) {
-        setEmailIsUnique(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
+        .then(function (response) {
+          setEmailIsUnique(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
     }
   }
 
   return (
     <div className="forms">
-      {unnkownError ? <h3 style={{textAlign: "center"}}>We're deeply sorry, unexpected error occured!</h3> : null}
+      {unnkownError ? <h3 style={{ textAlign: "center" }}>We're deeply sorry, unexpected error occured!</h3> : null}
       <div className="form-fields">
         <label className="labels" htmlFor="usern">
-          Username: {userNameIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
+          Username: {userNameIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -353,8 +496,8 @@ function Registration() {
         ></input>
 
         <label className="labels" htmlFor="email">
-          E-mail: {emailIsValid ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Invalid</p>} 
-          {emailIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
+          E-mail: {emailIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>}
+          {emailIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -368,27 +511,16 @@ function Registration() {
         ></input>
 
         <label className="labels" htmlFor="date">
-          Birthday:
+          Birthday: <p style={{ color: "gray", margin: "0", marginLeft: "1rem" }}>Optional</p>
+          {birthdayIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>} {birthdayIsInRange ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Out of Range 1900 - {new Date().getFullYear()}</p>}
         </label>
-        <div className="calendar">
-          <TextField
-            id="date"
-            type="date"
-            InputProps={{
-              inputProps: {
-                min: "1900-01-01",
-                max: new Date().toISOString().slice(0, 10),
-              },
-            }}
-            value={localDate}
-            onChange={(e) => setLocalDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
+        <div style={{ margin: "auto", textAlign: "center", width: "16rem", }}>
+          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="MM" name="month"></input>
+          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="DD" name="day"></input>
+          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-4" type="text" size="4" maxLength="4" minLength="4" placeholder="YYYY" name="year"></input>
         </div>
         <label className="labels" htmlFor="phone">
-          Phone Number: {phoneNumberIsUnique ? null : <p style={{color: "red", margin: "0", marginLeft: "1rem"}}>Already in use!</p>}
+          Phone Number: {phoneNumberIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
         </label>
         <input
           className="inputs"
@@ -402,11 +534,11 @@ function Registration() {
         ></input>
 
         <label className="labels" htmlFor="password">
-          Password: (<p style={{color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0}}>at least 5 characters!</p>)
+          Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>at least 5 characters!</p>)
         </label>
-        <div style={{display: "inline-flex", width: "64rem"}}>
+        <div style={{ display: "inline-flex", width: "64rem" }}>
           <input
-            style={{backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
+            style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
             className="password-inputs"
             type={passwordInputType}
             id="password"
@@ -428,9 +560,9 @@ function Registration() {
               margin: "auto",
               marginLeft: "1em"
             }}
-            onMouseDown={() => {changeToOpenSrc(1)}}
-            onMouseUp={() => {changeToClosedSrc(1)}}
-            onMouseOut={() => {changeToClosedSrc(1)}}
+            onMouseDown={() => { changeToOpenSrc(1) }}
+            onMouseUp={() => { changeToClosedSrc(1) }}
+            onMouseOut={() => { changeToClosedSrc(1) }}
           >
             <img
               src={eyeSrc}
@@ -439,13 +571,13 @@ function Registration() {
             />
           </button>
         </div>
-        
+
         <label className="labels" htmlFor="password2">
           Password Again:
         </label>
-        <div style={{display: "inline-flex", width: "64rem"}}>
+        <div style={{ display: "inline-flex", width: "64rem" }}>
           <input
-            style={{backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
+            style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
             className="password-inputs"
             type={password2InputType}
             id="password2"
@@ -467,9 +599,9 @@ function Registration() {
               margin: "auto",
               marginLeft: "1em"
             }}
-            onMouseDown={() => {changeToOpenSrc(2)}}
-            onMouseUp={() => {changeToClosedSrc(2)}}
-            onMouseOut={() => {changeToClosedSrc(2)}}
+            onMouseDown={() => { changeToOpenSrc(2) }}
+            onMouseUp={() => { changeToClosedSrc(2) }}
+            onMouseOut={() => { changeToClosedSrc(2) }}
           >
             <img
               src={eyeSrc2}
@@ -478,7 +610,7 @@ function Registration() {
             />
           </button>
         </div>
-        {mistypedPassword ? <p style={{textAlign: "center"}}>The given passwords doesn't match!</p> : null}
+        {mistypedPassword ? <p style={{ textAlign: "center" }}>The given passwords doesn't match!</p> : null}
         {missingInputs ? <p className="speech-bubble">You need to fill out all input fields to Register!</p> : null}
         <button className="buttons" onClick={sendUserRegistrationData}>
           Send
