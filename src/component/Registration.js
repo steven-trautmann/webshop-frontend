@@ -65,40 +65,54 @@ function Registration() {
 
   //and set the states according to it
   const checkIfFieldsAreFilledCorrectly = () => {
-
+    let somethingIsWrong = false;
     if (inputStates.password !== inputStates.password2) {
       setMistypedPassword(true);
+      somethingIsWrong = true;
     } else {
       setMistypedPassword(false);
     }
 
     if (inputStates.password.length < 5) {
       setPasswordIsTooSmall(true);
+      somethingIsWrong = true;
     } else {
       setPasswordIsTooSmall(false);
     }
 
     if (!checkEmailValidity("")) {
       setEmailIsValid(false);
+      somethingIsWrong = true;
     } else {
       setEmailIsValid(true);
     }
 
     if (checkBirthdayValidityCasually()) {
-      checkBirthdayIsInRangeCasually()
+      if (!checkBirthdayIsInRangeCasually()) {
+        somethingIsWrong = true;
+      }
+    } else {
+      somethingIsWrong = true;
     }
-    //uniqueness of username, phone number and e-mail is checked dynamically
+
+    if (!(userNameIsUnique && emailIsUnique && phoneNumberIsUnique)) {
+      somethingIsWrong = true;
+    }
+
+    if (somethingIsWrong) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   const sendUserRegistrationData = () => {
-    checkIfFieldsAreFilledCorrectly();
+    //need to call this separately, because it'll set the error states according to that
+    let everythingIsCorrect = checkIfFieldsAreFilledCorrectly();
 
     // checks if everything is filled
     if (checkIfFieldsAreFilled()) {
-      //checks if everything is filled correctly (- again, because setting the states might be slower)
-      if (inputStates.password === inputStates.password2 &&
-        inputStates.password.length >= 5 && checkEmailValidity("") && checkBirthdayValidityCasually() && checkBirthdayIsInRangeCasually()
-        && userNameIsUnique && emailIsUnique && phoneNumberIsUnique) {
+      if (everythingIsCorrect) {
         Axios.post(
           regRoute,
           {
@@ -106,7 +120,7 @@ function Registration() {
             lastName: inputStates.lname,
             userName: inputStates.userName,
             password: inputStates.password,
-            birthday: Date.parse(birthdayMonth + "-" + birthdayDay + "-" + birthdayYear),
+            birthday: (birthdayYear + "-" + birthdayMonth + "-" + birthdayDay),
             email: inputStates.email,
             phoneNumber: inputStates.phone,
           },
@@ -117,7 +131,6 @@ function Registration() {
             localStorage.setItem("userId", response.data.userId);
             localStorage.setItem("roles", response.data.roles);
             setIsLoggedIn(true);
-            window.location.href = "/";
           })
           .catch(function (error) {
             handleErrors(error);
@@ -140,6 +153,8 @@ function Registration() {
         setPhoneNumberIsUnique(false);
       } else if (error.response.data.userNameUniquenessError != null) {
         setUserNameIsUnique(false);
+      } else if (error.response.data.birthDayOutOfRangeError != null) {
+        setBirthdayIsValid(false); //more precisely it is out of range, but nvm
       }
       setUnnkownError(false);
     } else {
@@ -227,7 +242,7 @@ function Registration() {
 
   //and sets it as well -- only check if its in range if its valid in the first place (do not display error either)
   const checkBirthdayIsInRangeCasually = () => {
-    if (!checkBirthdayValidity && birthdayMonth === "" && birthdayDay === "" && birthdayYear === "") {
+    if (birthdayMonth === "" && birthdayDay === "" && birthdayYear === "") {
       setBirthdayIsInRange(true);
       return true;
     }
