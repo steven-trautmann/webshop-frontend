@@ -3,6 +3,7 @@ import Axios from "axios";
 import "../style/forms.css";
 import "../style/speech-bubble.css";
 import { LoggedInContext } from "../context/LoggedInContext";
+import { InnerWidthContext } from "../context/InnerWidthContext";
 import moment from "moment";
 
 function Registration() {
@@ -10,6 +11,7 @@ function Registration() {
     window.location.href = "/";
   }
 
+  const [width,] = useContext(InnerWidthContext);
   const regRoute = "http://localhost:8080/user/registration";
   const checkEmailRoute = "http://localhost:8080/user/check-email";
   const checkUserNameRoute = "http://localhost:8080/user/check-username";
@@ -181,6 +183,26 @@ function Registration() {
       setPassword2InputType("text");
     }
   };
+
+  const toggleSrc = (passwordNum) => {
+    if (passwordNum === 1) {
+      if (eyeSrc.slice(eyeSrc.indexOf("-") + 1) === "open.svg") {
+        setEyeSrc("/images/eyes-closed.svg");
+        setPasswordInputType("password");
+      } else {
+        setEyeSrc("/images/eyes-open.svg");
+        setPasswordInputType("text");
+      }
+    } else {
+      if (eyeSrc2.slice(eyeSrc2.indexOf("-") + 1) === "open.svg") {
+        setEyeSrc2("/images/eyes-closed.svg");
+        setPassword2InputType("password");
+      } else {
+        setEyeSrc2("/images/eyes-open.svg");
+        setPassword2InputType("text")
+      }
+    }
+  }
 
   function checkMissingInputs(inputName) {
     for (let [key, value] of Object.entries(inputStates)) {
@@ -509,11 +531,17 @@ function Registration() {
           onChange={handleInputChangeCasual}
           onKeyDown={handleEnterKeydown}
         ></input>
-
-        <label className="labels" htmlFor="email">
-          E-mail: {emailIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>}
-          {emailIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
-        </label>
+        {width > 650 ?
+          (<label className="labels" htmlFor="email" >
+            E-mail: {emailIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>}
+            {emailIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
+          </label>) : (
+            <label className="labels" style={{ display: "block" }} htmlFor="email" >
+              <div>E-mail:</div>
+              <div>{emailIsValid ? null : <p style={{ color: "red", margin: "0" }}>Invalid</p>}</div>
+              <div>{emailIsUnique ? null : <p style={{ color: "red", margin: "0" }}>Already in use!</p>}</div>
+            </label>
+          )}
         <input
           className="inputs"
           type="text"
@@ -524,11 +552,21 @@ function Registration() {
           onChange={handleEmailChange}
           onKeyDown={handleEnterKeydown}
         ></input>
+        {width > 700 ?
+          (<label className="labels" htmlFor="date">
+            Birthday: <p style={{ color: "gray", margin: "0", marginLeft: "1rem" }}>Optional</p>
+            {birthdayIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>} {birthdayIsInRange ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Out of Range 1900 - {new Date().getFullYear()}</p>}
+          </label>) : (
+            <label className="labels" style={{ display: "block" }} htmlFor="date">
+              <div>Birthday:</div>
 
-        <label className="labels" htmlFor="date">
-          Birthday: <p style={{ color: "gray", margin: "0", marginLeft: "1rem" }}>Optional</p>
-          {birthdayIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>} {birthdayIsInRange ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Out of Range 1900 - {new Date().getFullYear()}</p>}
-        </label>
+              <div style={{ color: "gray", margin: "0" }}>Optional</div>
+
+              {birthdayIsValid ? null : <div style={{ color: "red", margin: "0" }}>Invalid</div>}
+              {birthdayIsInRange ? null : <div style={{ color: "red", margin: "0" }}>Out of Range 1900 - {new Date().getFullYear()}</div>}
+            </label>
+
+          )}
         <div style={{ margin: "auto", textAlign: "center", width: "16rem", }}>
           <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="MM" name="month"></input>
           <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="DD" name="day"></input>
@@ -547,10 +585,15 @@ function Registration() {
           onChange={handlePhoneNumberChange}
           onKeyDown={handleEnterKeydown}
         ></input>
-
-        <label className="labels" htmlFor="password">
-          Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>at least 5 characters!</p>)
-        </label>
+        {width > 620 ? (
+          <label className="labels" htmlFor="password" style={{ width: "28rem" }}>
+            Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>min. 5 characters!</p>)
+          </label>) : (
+            <label className="labels" htmlFor="password" style={{ display: "block" }}>
+              <div>Password:</div>
+              <div style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, width: "18rem", marginLeft: "-3rem" }}>(min. 5 characters!)</div>
+            </label>
+          )}
         <div style={{ display: "inline-flex", width: "100%" }}>
           <input
             style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
@@ -572,8 +615,11 @@ function Registration() {
               outline: "none",
               cursor: "pointer",
               marginLeft: "1rem",
-              backgroundColor: "darkgray"
+              backgroundColor: "darkgray",
+              WebkitTapHighlightColor: "transparent"
             }}
+            onTouchStart={() => { toggleSrc(1) }}
+            onTouchEnd={(e) => { e.preventDefault() }}
             onMouseDown={() => { changeToOpenSrc(1) }}
             onMouseUp={() => { changeToClosedSrc(1) }}
             onMouseOut={() => { changeToClosedSrc(1) }}
@@ -610,8 +656,11 @@ function Registration() {
               outline: "none",
               cursor: "pointer",
               marginLeft: "1rem",
-              backgroundColor: "darkgray"
+              backgroundColor: "darkgray",
+              WebkitTapHighlightColor: "transparent"
             }}
+            onTouchStart={() => { toggleSrc(2) }}
+            onTouchEnd={(e) => { e.preventDefault() }}
             onMouseDown={() => { changeToOpenSrc(2) }}
             onMouseUp={() => { changeToClosedSrc(2) }}
             onMouseOut={() => { changeToClosedSrc(2) }}

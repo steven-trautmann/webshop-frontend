@@ -40,8 +40,6 @@ const Login = () => {
                     window.location.href = "/";
                 })
                 .catch((error) => {
-                    console.log(error.response);
-                    console.log(error.response);
                     if (!error.response) {
                         setFailedLogIn(false);
                         setNetworkError(true);
@@ -57,16 +55,25 @@ const Login = () => {
         setLogInStates({ ...logInStates, [event.target.name]: event.target.value });
     };
 
-    const changeToClosedSrc = () => {
-        console.log("fasz")
+    const changeToClosedSrc = (e) => {
         setEyeSrc("/images/eyes-closed.svg");
         setInputType("password");
     };
 
-    const changeToOpenSrc = () => {
+    const changeToOpenSrc = (e) => {
         setEyeSrc("/images/eyes-open.svg");
         setInputType("text");
     };
+
+    const toggleSrc = (e) => {
+        if (eyeSrc.slice(eyeSrc.indexOf("-") + 1) === "open.svg") {
+            setInputType("password");
+            setEyeSrc("/images/eyes-closed.svg");
+        } else {
+            setEyeSrc("/images/eyes-open.svg");
+            setInputType("text");
+        }
+    }
 
     return (
         <div className="forms" style={{ height: "20rem" }}>
@@ -109,11 +116,14 @@ const Login = () => {
                             outline: "none",
                             cursor: "pointer",
                             marginLeft: "1rem",
-                            backgroundColor: "darkgray"
+                            backgroundColor: "darkgray",
+                            WebkitTapHighlightColor: "transparent"
                         }}
-                        onMouseDown={() => { changeToOpenSrc() }}
-                        onMouseUp={() => { changeToClosedSrc() }}
-                        onMouseOut={() => { changeToClosedSrc() }}
+                        onTouchStart={toggleSrc}
+                        onTouchEnd={(e) => { e.preventDefault() }}
+                        onMouseDown={changeToOpenSrc}
+                        onMouseUp={changeToClosedSrc}
+                        onMouseOut={changeToClosedSrc}
                     >
                         <img
                             src={eyeSrc}

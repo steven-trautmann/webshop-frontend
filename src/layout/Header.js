@@ -29,6 +29,16 @@ function Header(props) {
     window.addEventListener("resize", () => setWidth(window.innerWidth));
   }, [setWidth]);
 
+  const toggleSrc = () => {
+    if (eyeSrc.slice(eyeSrc.indexOf("-") + 1) === "open.svg") {
+      setInputType("password");
+      setEyeSrc("/images/eyes-closed.svg");
+    } else {
+      setEyeSrc("/images/eyes-open.svg");
+      setInputType("text");
+    }
+  }
+
   const changeToClosedSrc = () => {
     setEyeSrc("/images/eyes-closed.svg");
     setInputType("password");
@@ -68,8 +78,6 @@ function Header(props) {
           window.location.href = "/";
         })
         .catch((error) => {
-          console.log(error.response);
-          console.log(error.response);
           if (!error.response) {
             setFailedLogIn(false);
             setNetworkError(true);
@@ -151,7 +159,10 @@ function Header(props) {
                               cursor: "pointer",
                               display: "relative",
                               top: "0.4rem",
+                              WebkitTapHighlightColor: "transparent"
                             }}
+                            onTouchStart={toggleSrc}
+                            onTouchEnd={(e) => { e.preventDefault() }}
                             onMouseDown={changeToOpenSrc}
                             onMouseUp={changeToClosedSrc}
                             onMouseOut={changeToClosedSrc}
