@@ -551,10 +551,10 @@ function Registration() {
         <label className="labels" htmlFor="password">
           Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>at least 5 characters!</p>)
         </label>
-        <div style={{ display: "inline-flex", width: "64rem" }}>
+        <div style={{ display: "inline-flex", width: "100%" }}>
           <input
             style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
-            className="password-inputs"
+            className="inputs"
             type={passwordInputType}
             id="password"
             placeholder="password"
@@ -565,15 +565,14 @@ function Registration() {
           ></input>
           <button
             style={{
-              width: "3vw",
-              height: "2vw",
+              width: "2rem",
               padding: "0",
               border: "0",
               borderRadius: "40%",
               outline: "none",
               cursor: "pointer",
-              margin: "auto",
-              marginLeft: "1em"
+              marginLeft: "1rem",
+              backgroundColor: "darkgray"
             }}
             onMouseDown={() => { changeToOpenSrc(1) }}
             onMouseUp={() => { changeToClosedSrc(1) }}
@@ -582,7 +581,7 @@ function Registration() {
             <img
               src={eyeSrc}
               alt="see password"
-              style={{ width: "2.5vw", height: "2vw" }}
+              style={{ width: "100%", height: "100%" }}
             />
           </button>
         </div>
@@ -590,10 +589,10 @@ function Registration() {
         <label className="labels" htmlFor="password2">
           Password Again:
         </label>
-        <div style={{ display: "inline-flex", width: "64rem" }}>
+        <div style={{ display: "inline-flex", width: "100%" }}>
           <input
             style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
-            className="password-inputs"
+            className="inputs"
             type={password2InputType}
             id="password2"
             placeholder="password (again)"
@@ -604,15 +603,14 @@ function Registration() {
           ></input>
           <button
             style={{
-              width: "3vw",
-              height: "2vw",
+              width: "2rem",
               padding: "0",
               border: "0",
               borderRadius: "40%",
               outline: "none",
               cursor: "pointer",
-              margin: "auto",
-              marginLeft: "1em"
+              marginLeft: "1rem",
+              backgroundColor: "darkgray"
             }}
             onMouseDown={() => { changeToOpenSrc(2) }}
             onMouseUp={() => { changeToClosedSrc(2) }}
@@ -621,7 +619,7 @@ function Registration() {
             <img
               src={eyeSrc2}
               alt="see password"
-              style={{ width: "2.5vw", height: "2vw" }}
+              style={{ width: "100%", height: "100%" }}
             />
           </button>
         </div>

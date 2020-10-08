@@ -1,0 +1,25 @@
+.nav-bar {
+    height: 5rem;
+    position: fixed;
+    width: 100%;
+    display: flex;
+    top: 0;
+    background-color: white;
+}
+
+.nav-bar button {
+    height: 100%;
+}
+
+.hiddenErrorMessage{
+    display: none;
+    position: absolute;
+    top: 5rem;
+    left: 10rem;
+    border: solid black 0.1rem;
+}
+
+.nav-bar .login-button:hover + .hiddenErrorMessage {
+    display: block;
+    z-index: 10;
+}
