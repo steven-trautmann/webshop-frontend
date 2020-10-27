@@ -89,13 +89,13 @@ function Header(props) {
     }
   };
 
-  const addProduct = () => {
-    Axios.get("http://localhost:8080/product/add", { withCredentials: true })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => console.log(error));
-  };
+  // const addProduct = () => {
+  //   Axios.get("http://localhost:8080/product/add", { withCredentials: true })
+  //     .then((response) => {
+  //       console.log(response);
+  //     })
+  //     .catch((error) => console.log(error));
+  // };
 
   const logOut = () => {
     Axios.get("http://localhost:8080/user/logout", { withCredentials: true })
@@ -120,8 +120,7 @@ function Header(props) {
             <button>User Page</button>
           </Link>
           <NavDiv>
-            <p style={{ margin: "2rem 0 2rem" }}> Hello there, {localStorage.getItem("username")}</p>
-            <button onClick={addProduct}> add product(authenticated) </button>
+            <p style={{ margin: "2rem 1rem 0 2rem" }}> Hello there, {localStorage.getItem("username")}</p>
             <button onClick={logOut}> log out </button>
           </NavDiv>
         </>
