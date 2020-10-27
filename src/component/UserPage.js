@@ -3,6 +3,10 @@ import axios from 'axios';
 import { storage } from '../firebase/FireBase';
 
 const UserPage = (props) => {
+    if (localStorage.getItem("username") == null) {
+        window.location.href = "/";
+    }
+
     const [fileTooBig, setFileTooBig] = useState(false);
     const [unsupportedTypeError, setUnsupportedTypeError] = useState(false);
     const [networkError, setNetworkError] = useState(false);
@@ -165,34 +169,30 @@ const UserPage = (props) => {
             })
     }, [])
 
-    if (localStorage.getItem("username") == null) {
-        window.location.href = "/";
-    } else {
-        return (
-            <div>
-                <h1 style={{ textAlign: "center" }}>This is The User page!</h1>
-                {oldImgUrl === "" ?
-                    <h3 style={{ textAlign: "center" }}>You haven't set your profile picture yet!</h3>
-                    :
-                    <img style={{ display: "block", margin: "auto", maxWidth: "20rem", minWidth: "16rem" }} alt="profile" src={oldImgUrl} />
-                }
-                <div style={{ margin: "auto", width: "max-content", padding: "1rem" }}>
-                    <label htmlFor="file" style={{ cursor: "pointer", border: "solid 0.15rem", padding: "0.1rem" }}>Select Image</label>
-                    <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
-                </div>
-
-                {unsupportedTypeError ? <h1 style={{ color: "red" }}>Unsupported Type! Only JPG/JPEG and PNG allowed!</h1> : null}
-                {fileTooBig ? <h1 style={{ color: "red" }}>The file is too big! The maximum size is 10MB!</h1> : null}
-                {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
-                {authError ? <h1 style={{ color: "red" }}>You have to log in or register!</h1> : null}
-
-                <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
-                    <img style={{ maxWidth: "10rem", minWidth: "8rem" }} alt="" src={newImgUrl} />
-                    <button onClick={saveImg}>{oldImgUrl === "" ? "Upload" : "Change"}</button>
-                </div>
+    return (
+        <div>
+            <h1 style={{ textAlign: "center" }}>This is The User page!</h1>
+            {oldImgUrl === "" ?
+                <h3 style={{ textAlign: "center" }}>You haven't set your profile picture yet!</h3>
+                :
+                <img style={{ display: "block", margin: "auto", maxWidth: "20rem", minWidth: "16rem" }} alt="profile" src={oldImgUrl} />
+            }
+            <div style={{ margin: "auto", width: "max-content", padding: "1rem" }}>
+                <label htmlFor="file" style={{ cursor: "pointer", border: "solid 0.15rem", padding: "0.1rem" }}>Select Image</label>
+                <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
             </div>
-        );
-    }
+
+            {unsupportedTypeError ? <h1 style={{ color: "red" }}>Unsupported Type! Only JPG/JPEG and PNG allowed!</h1> : null}
+            {fileTooBig ? <h1 style={{ color: "red" }}>The file is too big! The maximum size is 10MB!</h1> : null}
+            {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
+            {authError ? <h1 style={{ color: "red" }}>You have to log in or register!</h1> : null}
+
+            <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
+                <img style={{ maxWidth: "10rem", minWidth: "8rem" }} alt="" src={newImgUrl} />
+                <button onClick={saveImg}>{oldImgUrl === "" ? "Upload" : "Change"}</button>
+            </div>
+        </div>
+    );
 }
 
 export default UserPage;
