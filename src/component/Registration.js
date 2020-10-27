@@ -7,9 +7,6 @@ import { InnerWidthContext } from "../context/InnerWidthContext";
 import moment from "moment";
 
 function Registration() {
-  if (localStorage.getItem("username") != null) {
-    window.location.href = "/";
-  }
 
   const [width,] = useContext(InnerWidthContext);
   const regRoute = "http://localhost:8080/user/registration";
@@ -486,200 +483,204 @@ function Registration() {
     }
   }
 
-  return (
-    <div className="forms">
-      {unnkownError ? <h3 style={{ textAlign: "center" }}>We're deeply sorry, unexpected error occured!</h3> : null}
-      <div className="form-fields">
-        <label className="labels" htmlFor="usern">
-          Username: {userNameIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
-        </label>
-        <input
-          className="inputs"
-          type="text"
-          id="usern"
-          placeholder="tsmith"
-          value={inputStates.userName}
-          name="userName"
-          onChange={handleUserNameChange}
-          onKeyDown={handleEnterKeydown}
-        ></input>
-
-        <label className="labels" htmlFor="fname">
-          First name:
-        </label>
-        <input
-          className="inputs"
-          type="text"
-          id="fname"
-          placeholder="Thomas"
-          value={inputStates.fname}
-          name="fname"
-          onChange={handleInputChangeCasual}
-          onKeyDown={handleEnterKeydown}
-        ></input>
-
-        <label className="labels" htmlFor="lname">
-          Last name:
-        </label>
-        <input
-          className="inputs"
-          type="text"
-          id="lname"
-          placeholder="Smith"
-          value={inputStates.lname}
-          name="lname"
-          onChange={handleInputChangeCasual}
-          onKeyDown={handleEnterKeydown}
-        ></input>
-        {width > 650 ?
-          (<label className="labels" htmlFor="email" >
-            E-mail: {emailIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>}
-            {emailIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
-          </label>) : (
-            <label className="labels" style={{ display: "block" }} htmlFor="email" >
-              <div>E-mail:</div>
-              <div>{emailIsValid ? null : <p style={{ color: "red", margin: "0" }}>Invalid</p>}</div>
-              <div>{emailIsUnique ? null : <p style={{ color: "red", margin: "0" }}>Already in use!</p>}</div>
-            </label>
-          )}
-        <input
-          className="inputs"
-          type="text"
-          id="email"
-          placeholder="tsmith@email.com"
-          value={inputStates.email}
-          name="email"
-          onChange={handleEmailChange}
-          onKeyDown={handleEnterKeydown}
-        ></input>
-        {width > 700 ?
-          (<label className="labels" htmlFor="date">
-            Birthday: <p style={{ color: "gray", margin: "0", marginLeft: "1rem" }}>Optional</p>
-            {birthdayIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>} {birthdayIsInRange ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Out of Range 1900 - {new Date().getFullYear()}</p>}
-          </label>) : (
-            <label className="labels" style={{ display: "block" }} htmlFor="date">
-              <div>Birthday:</div>
-
-              <div style={{ color: "gray", margin: "0" }}>Optional</div>
-
-              {birthdayIsValid ? null : <div style={{ color: "red", margin: "0" }}>Invalid</div>}
-              {birthdayIsInRange ? null : <div style={{ color: "red", margin: "0" }}>Out of Range 1900 - {new Date().getFullYear()}</div>}
-            </label>
-
-          )}
-        <div style={{ margin: "auto", textAlign: "center", width: "16rem", }}>
-          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="MM" name="month"></input>
-          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="DD" name="day"></input>
-          <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-4" type="text" size="4" maxLength="4" minLength="4" placeholder="YYYY" name="year"></input>
-        </div>
-        <label className="labels" htmlFor="phone">
-          Phone Number: {phoneNumberIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
-        </label>
-        <input
-          className="inputs"
-          type="text"
-          id="phone"
-          placeholder="02011111111"
-          value={inputStates.phone}
-          name="phone"
-          onChange={handlePhoneNumberChange}
-          onKeyDown={handleEnterKeydown}
-        ></input>
-        {width > 620 ? (
-          <label className="labels" htmlFor="password" style={{ width: "28rem" }}>
-            Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>min. 5 characters!</p>)
-          </label>) : (
-            <label className="labels" htmlFor="password" style={{ display: "block" }}>
-              <div>Password:</div>
-              <div style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, width: "18rem", marginLeft: "-3rem" }}>(min. 5 characters!)</div>
-            </label>
-          )}
-        <div style={{ display: "inline-flex", width: "100%" }}>
+  if (localStorage.getItem("username") != null) {
+    window.location.href = "/";
+  } else {
+    return (
+      <div className="forms">
+        {unnkownError ? <h3 style={{ textAlign: "center" }}>We're deeply sorry, unexpected error occured!</h3> : null}
+        <div className="form-fields">
+          <label className="labels" htmlFor="usern">
+            Username: {userNameIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
+          </label>
           <input
-            style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
             className="inputs"
-            type={passwordInputType}
-            id="password"
-            placeholder="password"
-            value={inputStates.password}
-            name="password"
-            onChange={handlePasswordChange}
+            type="text"
+            id="usern"
+            placeholder="tsmith"
+            value={inputStates.userName}
+            name="userName"
+            onChange={handleUserNameChange}
             onKeyDown={handleEnterKeydown}
           ></input>
-          <button
-            style={{
-              width: "2rem",
-              padding: "0",
-              border: "0",
-              borderRadius: "40%",
-              outline: "none",
-              cursor: "pointer",
-              marginLeft: "1rem",
-              backgroundColor: "darkgray",
-              WebkitTapHighlightColor: "transparent"
-            }}
-            onTouchStart={() => { toggleSrc(1) }}
-            onTouchEnd={(e) => { e.preventDefault() }}
-            onMouseDown={() => { changeToOpenSrc(1) }}
-            onMouseUp={() => { changeToClosedSrc(1) }}
-            onMouseOut={() => { changeToClosedSrc(1) }}
-          >
-            <img
-              src={eyeSrc}
-              alt="see password"
-              style={{ width: "100%", height: "100%" }}
-            />
-          </button>
-        </div>
 
-        <label className="labels" htmlFor="password2">
-          Password Again:
+          <label className="labels" htmlFor="fname">
+            First name:
         </label>
-        <div style={{ display: "inline-flex", width: "100%" }}>
           <input
-            style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
             className="inputs"
-            type={password2InputType}
-            id="password2"
-            placeholder="password (again)"
-            value={inputStates.password2}
-            name="password2"
-            onChange={handlePasswordChange}
+            type="text"
+            id="fname"
+            placeholder="Thomas"
+            value={inputStates.fname}
+            name="fname"
+            onChange={handleInputChangeCasual}
             onKeyDown={handleEnterKeydown}
           ></input>
-          <button
-            style={{
-              width: "2rem",
-              padding: "0",
-              border: "0",
-              borderRadius: "40%",
-              outline: "none",
-              cursor: "pointer",
-              marginLeft: "1rem",
-              backgroundColor: "darkgray",
-              WebkitTapHighlightColor: "transparent"
-            }}
-            onTouchStart={() => { toggleSrc(2) }}
-            onTouchEnd={(e) => { e.preventDefault() }}
-            onMouseDown={() => { changeToOpenSrc(2) }}
-            onMouseUp={() => { changeToClosedSrc(2) }}
-            onMouseOut={() => { changeToClosedSrc(2) }}
-          >
-            <img
-              src={eyeSrc2}
-              alt="see password"
-              style={{ width: "100%", height: "100%" }}
-            />
-          </button>
-        </div>
-        {mistypedPassword ? <p style={{ textAlign: "center" }}>The given passwords doesn't match!</p> : null}
-        {missingInputs ? <p className="speech-bubble">You need to fill out all input fields to Register!</p> : null}
-        <button className="buttons" onClick={sendUserRegistrationData}>
-          Send
+
+          <label className="labels" htmlFor="lname">
+            Last name:
+        </label>
+          <input
+            className="inputs"
+            type="text"
+            id="lname"
+            placeholder="Smith"
+            value={inputStates.lname}
+            name="lname"
+            onChange={handleInputChangeCasual}
+            onKeyDown={handleEnterKeydown}
+          ></input>
+          {width > 650 ?
+            (<label className="labels" htmlFor="email" >
+              E-mail: {emailIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>}
+              {emailIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
+            </label>) : (
+              <label className="labels" style={{ display: "block" }} htmlFor="email" >
+                <div>E-mail:</div>
+                <div>{emailIsValid ? null : <p style={{ color: "red", margin: "0" }}>Invalid</p>}</div>
+                <div>{emailIsUnique ? null : <p style={{ color: "red", margin: "0" }}>Already in use!</p>}</div>
+              </label>
+            )}
+          <input
+            className="inputs"
+            type="text"
+            id="email"
+            placeholder="tsmith@email.com"
+            value={inputStates.email}
+            name="email"
+            onChange={handleEmailChange}
+            onKeyDown={handleEnterKeydown}
+          ></input>
+          {width > 700 ?
+            (<label className="labels" htmlFor="date">
+              Birthday: <p style={{ color: "gray", margin: "0", marginLeft: "1rem" }}>Optional</p>
+              {birthdayIsValid ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Invalid</p>} {birthdayIsInRange ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Out of Range 1900 - {new Date().getFullYear()}</p>}
+            </label>) : (
+              <label className="labels" style={{ display: "block" }} htmlFor="date">
+                <div>Birthday:</div>
+
+                <div style={{ color: "gray", margin: "0" }}>Optional</div>
+
+                {birthdayIsValid ? null : <div style={{ color: "red", margin: "0" }}>Invalid</div>}
+                {birthdayIsInRange ? null : <div style={{ color: "red", margin: "0" }}>Out of Range 1900 - {new Date().getFullYear()}</div>}
+              </label>
+
+            )}
+          <div style={{ margin: "auto", textAlign: "center", width: "16rem", }}>
+            <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="MM" name="month"></input>
+            <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-2" type="text" size="2" maxLength="2" minLength="2" placeholder="DD" name="day"></input>
+            <input onKeyDown={handleEnterKeydown} onChange={handleBirthdayChange} className="calendar-inputs-4" type="text" size="4" maxLength="4" minLength="4" placeholder="YYYY" name="year"></input>
+          </div>
+          <label className="labels" htmlFor="phone">
+            Phone Number: {phoneNumberIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
+          </label>
+          <input
+            className="inputs"
+            type="text"
+            id="phone"
+            placeholder="02011111111"
+            value={inputStates.phone}
+            name="phone"
+            onChange={handlePhoneNumberChange}
+            onKeyDown={handleEnterKeydown}
+          ></input>
+          {width > 620 ? (
+            <label className="labels" htmlFor="password" style={{ width: "28rem" }}>
+              Password: (<p style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, margin: 0 }}>min. 5 characters!</p>)
+            </label>) : (
+              <label className="labels" htmlFor="password" style={{ display: "block" }}>
+                <div>Password:</div>
+                <div style={{ color: `${passwordIsTooSmall ? "red" : "black"}`, width: "18rem", marginLeft: "-3rem" }}>(min. 5 characters!)</div>
+              </label>
+            )}
+          <div style={{ display: "inline-flex", width: "100%" }}>
+            <input
+              style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
+              className="inputs"
+              type={passwordInputType}
+              id="password"
+              placeholder="password"
+              value={inputStates.password}
+              name="password"
+              onChange={handlePasswordChange}
+              onKeyDown={handleEnterKeydown}
+            ></input>
+            <button
+              style={{
+                width: "2rem",
+                padding: "0",
+                border: "0",
+                borderRadius: "40%",
+                outline: "none",
+                cursor: "pointer",
+                marginLeft: "1rem",
+                backgroundColor: "darkgray",
+                WebkitTapHighlightColor: "transparent"
+              }}
+              onTouchStart={() => { toggleSrc(1) }}
+              onTouchEnd={(e) => { e.preventDefault() }}
+              onMouseDown={() => { changeToOpenSrc(1) }}
+              onMouseUp={() => { changeToClosedSrc(1) }}
+              onMouseOut={() => { changeToClosedSrc(1) }}
+            >
+              <img
+                src={eyeSrc}
+                alt="see password"
+                style={{ width: "100%", height: "100%" }}
+              />
+            </button>
+          </div>
+
+          <label className="labels" htmlFor="password2">
+            Password Again:
+        </label>
+          <div style={{ display: "inline-flex", width: "100%" }}>
+            <input
+              style={{ backgroundColor: `${mistypedPassword ? "red" : "white"}` }}
+              className="inputs"
+              type={password2InputType}
+              id="password2"
+              placeholder="password (again)"
+              value={inputStates.password2}
+              name="password2"
+              onChange={handlePasswordChange}
+              onKeyDown={handleEnterKeydown}
+            ></input>
+            <button
+              style={{
+                width: "2rem",
+                padding: "0",
+                border: "0",
+                borderRadius: "40%",
+                outline: "none",
+                cursor: "pointer",
+                marginLeft: "1rem",
+                backgroundColor: "darkgray",
+                WebkitTapHighlightColor: "transparent"
+              }}
+              onTouchStart={() => { toggleSrc(2) }}
+              onTouchEnd={(e) => { e.preventDefault() }}
+              onMouseDown={() => { changeToOpenSrc(2) }}
+              onMouseUp={() => { changeToClosedSrc(2) }}
+              onMouseOut={() => { changeToClosedSrc(2) }}
+            >
+              <img
+                src={eyeSrc2}
+                alt="see password"
+                style={{ width: "100%", height: "100%" }}
+              />
+            </button>
+          </div>
+          {mistypedPassword ? <p style={{ textAlign: "center" }}>The given passwords doesn't match!</p> : null}
+          {missingInputs ? <p className="speech-bubble">You need to fill out all input fields to Register!</p> : null}
+          <button className="buttons" onClick={sendUserRegistrationData}>
+            Send
         </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default Registration;

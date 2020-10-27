@@ -4,10 +4,6 @@ import Axios from "axios";
 import { LoggedInContext } from "../context/LoggedInContext";
 
 const Login = () => {
-    if (localStorage.getItem("username") != null) {
-        window.location.href = "/";
-    }
-
     const [, setIsLoggedIn] = useContext(LoggedInContext);
     const [eyeSrc, setEyeSrc] = useState("/images/eyes-closed.svg");
     const [inputType, setInputType] = useState("password");
@@ -75,79 +71,83 @@ const Login = () => {
         }
     }
 
-    return (
-        <div className="forms" style={{ height: "20rem" }}>
-            <div className="form-fields">
-                <label className="labels" htmlFor="usern">
-                    Username:
+    if (localStorage.getItem("username") != null) {
+        window.location.href = "/";
+    } else {
+        return (
+            <div className="forms" style={{ height: "20rem" }}>
+                <div className="form-fields">
+                    <label className="labels" htmlFor="usern">
+                        Username:
                 </label>
-                <input
-                    className="inputs"
-                    type="text"
-                    id="usern"
-                    placeholder="tsmith"
-                    value={logInStates.username}
-                    name="username"
-                    onChange={handleChange}
-                    onKeyDown={handleEnterKeydown}
-                ></input>
-
-                <label className="labels" htmlFor="password">
-                    Password:
-                </label>
-
-                <div style={{ display: "inline-flex", width: "100%" }}>
                     <input
                         className="inputs"
-                        type={inputType}
-                        id="password"
-                        placeholder="password"
-                        value={logInStates.password}
-                        name="password"
+                        type="text"
+                        id="usern"
+                        placeholder="tsmith"
+                        value={logInStates.username}
+                        name="username"
                         onChange={handleChange}
                         onKeyDown={handleEnterKeydown}
                     ></input>
-                    <button
-                        style={{
-                            width: "2rem",
-                            padding: "0",
-                            border: "0",
-                            borderRadius: "40%",
-                            outline: "none",
-                            cursor: "pointer",
-                            marginLeft: "1rem",
-                            backgroundColor: "darkgray",
-                            WebkitTapHighlightColor: "transparent"
-                        }}
-                        onTouchStart={toggleSrc}
-                        onTouchEnd={(e) => { e.preventDefault() }}
-                        onMouseDown={changeToOpenSrc}
-                        onMouseUp={changeToClosedSrc}
-                        onMouseOut={changeToClosedSrc}
-                    >
-                        <img
-                            src={eyeSrc}
-                            alt="see password"
-                            style={{ width: "100%", height: "100%" }}
-                        />
-                    </button>
+
+                    <label className="labels" htmlFor="password">
+                        Password:
+                </label>
+
+                    <div style={{ display: "inline-flex", width: "100%" }}>
+                        <input
+                            className="inputs"
+                            type={inputType}
+                            id="password"
+                            placeholder="password"
+                            value={logInStates.password}
+                            name="password"
+                            onChange={handleChange}
+                            onKeyDown={handleEnterKeydown}
+                        ></input>
+                        <button
+                            style={{
+                                width: "2rem",
+                                padding: "0",
+                                border: "0",
+                                borderRadius: "40%",
+                                outline: "none",
+                                cursor: "pointer",
+                                marginLeft: "1rem",
+                                backgroundColor: "darkgray",
+                                WebkitTapHighlightColor: "transparent"
+                            }}
+                            onTouchStart={toggleSrc}
+                            onTouchEnd={(e) => { e.preventDefault() }}
+                            onMouseDown={changeToOpenSrc}
+                            onMouseUp={changeToClosedSrc}
+                            onMouseOut={changeToClosedSrc}
+                        >
+                            <img
+                                src={eyeSrc}
+                                alt="see password"
+                                style={{ width: "100%", height: "100%" }}
+                            />
+                        </button>
+                    </div>
+
+                    {failedLogIn ? (
+                        <p style={{ color: "red", fontSize: "1rem", textAlign: "center" }}>
+                            Wrong Username and / or Password.
+                        </p>
+                    ) : null}
+                    {networkError ? (
+                        <p style={{ color: "red", fontSize: "1rem" }}>
+                            Unexpected network error occured.
+                        </p>
+                    ) : null}
+                    <button className="buttons" onClick={logIn}> Log In </button>
                 </div>
 
-                {failedLogIn ? (
-                    <p style={{ color: "red", fontSize: "1rem", textAlign: "center" }}>
-                        Wrong Username and / or Password.
-                    </p>
-                ) : null}
-                {networkError ? (
-                    <p style={{ color: "red", fontSize: "1rem" }}>
-                        Unexpected network error occured.
-                    </p>
-                ) : null}
-                <button className="buttons" onClick={logIn}> Log In </button>
             </div>
-
-        </div>
-    );
+        );
+    }
 }
 
 export default Login;
