@@ -141,7 +141,7 @@ function Registration() {
   };
 
   const handleErrors = (error) => {
-    if (error.response.status === 400) {
+    if (error.response && error.response.status === 400) {
       if (error.response.data.nullableError != null) {
         setMissingInputs(true);
       } else if (error.response.data.emailValidityError != null) {

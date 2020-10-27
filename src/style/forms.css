@@ -1,5 +1,4 @@
 .forms {
-  width: 100%;
   background-color: darkgray;
   padding: 1rem;
   padding-top: 0.5em;
@@ -56,6 +55,12 @@
   align-items: center;
   margin: 1rem auto;
   -webkit-text-stroke: 1px rgba(0, 0, 0, 0.863);
+}
+
+@media screen and (max-width: 800px) {
+  .form-fields .labels {
+    font-size: 1rem;
+  }
 }
 
 .form-fields .buttons {
