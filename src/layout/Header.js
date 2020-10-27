@@ -115,11 +115,16 @@ function Header(props) {
         <button>Home</button>
       </Link>
       {isLoggedIn ? (
-        <NavDiv>
-          <p style={{ margin: "2rem" }}> Hello there, {localStorage.getItem("username")}</p>
-          <button onClick={addProduct}> add product(authenticated) </button>
-          <button onClick={logOut}> log out </button>
-        </NavDiv>
+        <>
+          <Link to="user">
+            <button>User Page</button>
+          </Link>
+          <NavDiv>
+            <p style={{ margin: "2rem 0 2rem" }}> Hello there, {localStorage.getItem("username")}</p>
+            <button onClick={addProduct}> add product(authenticated) </button>
+            <button onClick={logOut}> log out </button>
+          </NavDiv>
+        </>
       ) : (
           <NavDiv>
 
