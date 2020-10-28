@@ -29,10 +29,10 @@ const Login = () => {
                 { withCredentials: true }
             )
                 .then((response) => {
-                    localStorage.setItem("username", response.data.username);
+                    setIsLoggedIn(true);
                     localStorage.setItem("userId", response.data.userId);
                     localStorage.setItem("roles", response.data.roles);
-                    setIsLoggedIn(true);
+                    localStorage.setItem("username", response.data.username);
                     window.location.href = "/";
                 })
                 .catch((error) => {
