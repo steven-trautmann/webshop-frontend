@@ -60,9 +60,9 @@ const UserPage = (props) => {
                 }, () => {
                     // gets the functions from storage refences the image storage in firebase by the children
                     // gets the download url then sets the image from firebase as the value for the imgUrl key:
-                    storage.ref('profiles').child(fileName).getDownloadURL()
+                    storage.ref(`profiles/${fileName}`).getDownloadURL()
                         .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/change", { name: fileName, url: fireBaseUrl }, { withCredentials: true })
+                            axios.post("http://localhost:8080/img/change", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
                                 .then(response => {
                                     alert("Image Changed Successfully!");
                                     window.location.reload(false);
@@ -95,9 +95,9 @@ const UserPage = (props) => {
                 }, () => {
                     // gets the functions from storage refences the image storage in firebase by the children
                     // gets the download url then sets the image from firebase as the value for the imgUrl key:
-                    storage.ref('profiles').child(fileName).getDownloadURL()
+                    storage.ref(`profiles/${fileName}`).getDownloadURL()
                         .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/upload", { name: fileName, url: fireBaseUrl }, { withCredentials: true })
+                            axios.post("http://localhost:8080/img/upload", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
                                 .then(response => {
                                     alert("Image Uploaded Successfully!");
                                     window.location.reload(false);
