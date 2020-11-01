@@ -211,7 +211,7 @@ const ImageSelector = (props) => {
 
             <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
                 <button className="save-img-button" onClick={saveImg}>{props.oldImgUrl === "" ? "Upload" : "Change"}</button>
-                {fileInputImage === "" ? <p className="hiddenErrorMessage">Add an image first.</p> : null}
+                {fileInputImage === "" ? <p className="hiddenMissingInputMessage">Add an image first.</p> : null}
             </div>
         </div>)
 }

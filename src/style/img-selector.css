@@ -1,12 +1,12 @@
-.save-img-button:hover + .hiddenErrorMessage {
+.save-img-button:hover + .hiddenMissingInputMessage {
     display: block;
     z-index: 10;
 }
 
-.hiddenErrorMessage{
+.hiddenMissingInputMessage{
     display: none;
     position: absolute;
-    top: 70vh;
+    top: 40vh;
     left: 44vw;
     border: solid black 0.1rem;
 }
