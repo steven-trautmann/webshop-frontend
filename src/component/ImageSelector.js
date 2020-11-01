@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SelectAndCrop from "./ImageCropper";
 import axios from 'axios';
 import { storage } from '../firebase/FireBase';
+import "../style/img-selector.css";
 
 const ImageSelector = (props) => {
     const [fileInputImage, setFileInputImage] = useState("");
@@ -190,18 +191,22 @@ const ImageSelector = (props) => {
                         image={fileInputImage}
                         getCroppedImgSrc={setCroppedImgSrc}
                         allowUserControls={true}
-                    /></> : null}
+                    />
+                </> : null}
 
             {croppedImgSrc !== "" ?
                 <>
                     <img alt="cropped" src={croppedImgSrc} />
-                    <button onClick={() => { setCroppedImgSrc("") }}>Reset</button>
+                    <div>
+                        <button onClick={() => { setCroppedImgSrc("") }}>Reset</button>
+                    </div>
                 </>
                 :
                 null}
 
             <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
-                <button onClick={saveImg}>{props.oldImgUrl === "" ? "Upload" : "Change"}</button>
+                <button className="save-img-button" onClick={saveImg}>{props.oldImgUrl === "" ? "Upload" : "Change"}</button>
+                {fileInputImage === "" ? <p className="hiddenErrorMessage">Add an image first.</p> : null}
             </div>
         </div>)
 }

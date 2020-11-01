@@ -1,0 +1,12 @@
+.save-img-button:hover + .hiddenErrorMessage {
+    display: block;
+    z-index: 10;
+}
+
+.hiddenErrorMessage{
+    display: none;
+    position: absolute;
+    top: 65vh;
+    left: 43.5vw;
+    border: solid black 0.1rem;
+}

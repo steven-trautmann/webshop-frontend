@@ -5,6 +5,7 @@
     display: flex;
     top: 0;
     background-color: white;
+    z-index: 50;
 }
 
 .nav-bar button {
@@ -21,5 +22,5 @@
 
 .nav-bar .login-button:hover + .hiddenErrorMessage {
     display: block;
-    z-index: 10;
+    z-index: 60;
 }
