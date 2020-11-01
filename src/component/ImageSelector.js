@@ -14,7 +14,7 @@ const ImageSelector = (props) => {
     const [newImgFile, setNewImgFile] = useState();
 
     function fileIsImage(file) {
-        const acceptedImageTypes = ['image/jpeg', 'image/png'];
+        const acceptedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
         return file && acceptedImageTypes.includes(file['type']);
     }
 
@@ -152,6 +152,8 @@ const ImageSelector = (props) => {
 
     const onFileChangeHandler = (e) => {
         e.preventDefault();
+        setFileInputImage("");
+
         setAllErrorsToFalse();
         if (!checkIfFileIsAppropriate(e.target.files[0])) {
             return;
@@ -176,23 +178,26 @@ const ImageSelector = (props) => {
             {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
             {authError ? <h1 style={{ color: "red" }}>You have to log in or register!</h1> : null}
 
-            <div style={{ margin: "auto", width: "max-content", padding: "1rem" }}>
-                <label htmlFor="file" style={{ cursor: "pointer", border: "solid 0.15rem", padding: "0.1rem" }}>Select Image</label>
-                <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
-            </div>
-            {/* <button onClick={() => { console.log(croppedImgSrc) }}>log it</button> */}
-
             {fileInputImage !== "" ?
                 <>
                     <h3>
-                        Crop Your Image!
+                        Crop it if you want!
                     </h3>
+                    <button onClick={() => {
+                        setFileInputImage("");
+                        setCroppedImgSrc("");
+                    }}>Clear Image</button>
+
                     <SelectAndCrop
                         image={fileInputImage}
                         getCroppedImgSrc={setCroppedImgSrc}
                         allowUserControls={true}
                     />
-                </> : null}
+                </> :
+                <div style={{ margin: "auto", width: "max-content", padding: "1rem" }}>
+                    <label htmlFor="file" style={{ cursor: "pointer", border: "solid 0.15rem", padding: "0.1rem" }}>Select Image</label>
+                    <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
+                </div>}
 
             {croppedImgSrc !== "" ?
                 <>

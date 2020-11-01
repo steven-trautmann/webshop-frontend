@@ -6,7 +6,7 @@
 .hiddenErrorMessage{
     display: none;
     position: absolute;
-    top: 65vh;
-    left: 43.5vw;
+    top: 70vh;
+    left: 44vw;
     border: solid black 0.1rem;
 }
