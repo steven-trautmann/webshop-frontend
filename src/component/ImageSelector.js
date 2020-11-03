@@ -134,7 +134,7 @@ const ImageSelector = (props) => {
             return;
         }
         //check if the user simply uploads or changes their profile picture
-        if (props.oldImgUrl === "") {
+        if (props.isThereOldImg) {
             uploadImg();
         } else {
             changeImg();
@@ -210,7 +210,7 @@ const ImageSelector = (props) => {
                 null}
 
             <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
-                <button className="save-img-button" onClick={saveImg}>{props.oldImgUrl === "" ? "Upload" : "Change"}</button>
+                <button className="save-img-button" onClick={saveImg}>{props.isThereOldImg ? "Upload" : "Change"}</button>
                 {fileInputImage === "" ? <p className="hiddenMissingInputMessage">Add an image first.</p> : null}
             </div>
         </div>)

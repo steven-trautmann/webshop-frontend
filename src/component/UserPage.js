@@ -35,7 +35,7 @@ const UserPage = (props) => {
                     :
                     <img style={{ display: "block", margin: "auto", maxWidth: "20rem", minWidth: "16rem" }} alt="profile" src={oldImgUrl} />
                 }
-                <ImageSelector oldImgUrl={oldImgUrl} />
+                <ImageSelector isThereOldImg={oldImgUrl === ""} />
 
                 {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
                 {authError ? <h1 style={{ color: "red" }}>You have to log in or register!</h1> : null}
