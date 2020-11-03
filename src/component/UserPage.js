@@ -8,6 +8,7 @@ const UserPage = (props) => {
     const [networkError, setNetworkError] = useState(false);
     const [authError, setAuthError] = useState(false);
     const [croppedImgSrc, setCroppedImgSrc] = useState("");
+    const [inputFileUrl, setInputFileUrl] = useState("");
     const [newImgFile, setNewImgFile] = useState();
 
     useEffect(() => {
@@ -127,7 +128,10 @@ const UserPage = (props) => {
 
                     croppedImgSrc={croppedImgSrc}
                     setCroppedImgSrc={setCroppedImgSrc}
+                    newImgFile={newImgFile}
                     setNewImgFile={setNewImgFile}
+                    inputFileUrl={inputFileUrl}
+                    setInputFileUrl={setInputFileUrl}
                 />
 
                 {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}

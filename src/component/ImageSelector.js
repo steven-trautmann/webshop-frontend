@@ -3,11 +3,9 @@ import SelectAndCrop from "./ImageCropper";
 import "../style/img-selector.css";
 
 const ImageSelector = (props) => {
-    const [fileInputImage, setFileInputImage] = useState("");
     const [fileTooBig, setFileTooBig] = useState(false);
     const [unsupportedTypeError, setUnsupportedTypeError] = useState(false);
     const [networkError, setNetworkError] = useState(false);
-    const [newImgFile, setNewImgFile] = useState();
 
     function fileIsImage(file) {
         const acceptedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
@@ -45,7 +43,7 @@ const ImageSelector = (props) => {
     const saveImg = (e) => {
         e.preventDefault();
         setAllErrorsToFalse();
-        if (!checkIfFileIsAppropriate(newImgFile)) {
+        if (!checkIfFileIsAppropriate(props.newImgFile)) {
             return;
         }
         //check if the user simply uploads or changes their profile picture
@@ -59,7 +57,6 @@ const ImageSelector = (props) => {
 
     const onFileChangeHandler = (e) => {
         e.preventDefault();
-        setFileInputImage("");
 
         setAllErrorsToFalse();
         if (!checkIfFileIsAppropriate(e.target.files[0])) {
@@ -68,8 +65,8 @@ const ImageSelector = (props) => {
 
         let file = e.target.files[0];
 
-        setNewImgFile(file);
-        setFileInputImage(URL.createObjectURL(file));
+        props.setNewImgFile(file);
+        props.setInputFileUrl(URL.createObjectURL(file));
 
         // let reader = new FileReader();
         // reader.onloadend = () => {
@@ -84,18 +81,18 @@ const ImageSelector = (props) => {
             {fileTooBig ? <h1 style={{ color: "red" }}>The file is too big! The maximum size is 10MB!</h1> : null}
             {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
 
-            {fileInputImage !== "" ?
+            {props.inputFileUrl !== "" ?
                 <>
                     <h3>
                         Crop it if you want!
                     </h3>
                     <button onClick={() => {
-                        setFileInputImage("");
+                        props.setInputFileUrl("");
                         props.setCroppedImgSrc("");
                     }}>Clear Image</button>
 
                     <SelectAndCrop
-                        image={fileInputImage}
+                        image={props.inputFileUrl}
                         getCroppedImgSrc={props.setCroppedImgSrc}
                         allowUserControls={true}
                     />
@@ -117,7 +114,7 @@ const ImageSelector = (props) => {
 
             <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
                 <button className="save-img-button" onClick={saveImg}>{props.isThereOldImg ? "Upload" : "Change"}</button>
-                {fileInputImage === "" ? <p className="hiddenMissingInputMessage">Add an image first.</p> : null}
+                {props.inputFileUrl === "" ? <p className="hiddenMissingInputMessage">Add an image first.</p> : null}
             </div>
         </div>)
 }
