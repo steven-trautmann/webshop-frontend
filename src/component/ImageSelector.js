@@ -44,6 +44,7 @@ const ImageSelector = (props) => {
         e.preventDefault();
         setAllErrorsToFalse();
         if (!checkIfFileIsAppropriate(props.newImgFile)) {
+            console.log("iff!");
             return;
         }
         //check if the user simply uploads or changes their profile picture
@@ -65,8 +66,8 @@ const ImageSelector = (props) => {
 
         let file = e.target.files[0];
 
-        props.setNewImgFile(file);
         props.setInputFileUrl(URL.createObjectURL(file));
+        props.setNewImgFile(file);
 
         // let reader = new FileReader();
         // reader.onloadend = () => {
@@ -89,6 +90,7 @@ const ImageSelector = (props) => {
                     <button onClick={() => {
                         props.setInputFileUrl("");
                         props.setCroppedImgSrc("");
+                        props.setNewImgFile();
                     }}>Clear Image</button>
 
                     <SelectAndCrop
@@ -101,16 +103,6 @@ const ImageSelector = (props) => {
                     <label htmlFor="file" style={{ cursor: "pointer", border: "solid 0.15rem", padding: "0.1rem" }}>Select Image</label>
                     <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
                 </div>}
-
-            {props.croppedImgSrc !== "" ?
-                <>
-                    <img alt="cropped" src={props.croppedImgSrc} />
-                    <div>
-                        <button onClick={() => { props.setCroppedImgSrc("") }}>Reset</button>
-                    </div>
-                </>
-                :
-                null}
 
             <div style={{ margin: "auto", width: "min-content", textAlign: "center" }}>
                 <button className="save-img-button" onClick={saveImg}>{props.isThereOldImg ? "Upload" : "Change"}</button>
