@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import SelectAndCrop from "./ImageCropper";
-import axios from 'axios';
-import { storage } from '../firebase/FireBase';
 import "../style/img-selector.css";
 
 const ImageSelector = (props) => {
     const [fileInputImage, setFileInputImage] = useState("");
-    const [croppedImgSrc, setCroppedImgSrc] = useState("");
     const [fileTooBig, setFileTooBig] = useState(false);
     const [unsupportedTypeError, setUnsupportedTypeError] = useState(false);
     const [networkError, setNetworkError] = useState(false);
-    const [authError, setAuthError] = useState(false);
     const [newImgFile, setNewImgFile] = useState();
 
     function fileIsImage(file) {
@@ -46,87 +42,6 @@ const ImageSelector = (props) => {
         setUnsupportedTypeError(false);
     }
 
-    function changeImg() {
-        axios.get("http://localhost:8080/img/file-name", { withCredentials: true }).then(response => {
-            let fileName = response.data;
-
-            let uploadTask;
-            if (croppedImgSrc === "") {
-                uploadTask = storage.ref(`/profiles/${fileName}`).put(newImgFile);
-            } else {
-                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: "image/jpg" });
-            }
-            //initiates the firebase side uploading 
-            uploadTask.on('state_changed',
-                (snapShot) => {
-                    //takes a snap shot of the process as it is happening
-                    // console.log(snapShot)
-                }, (err) => {
-                    //catches the errors
-                    console.error(err);
-                    setNetworkError(true)
-                }, () => {
-                    // gets the functions from storage refences the image storage in firebase by the children
-                    // gets the download url then sets the image from firebase as the value for the imgUrl key:
-                    storage.ref(`profiles/${fileName}`).getDownloadURL()
-                        .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/change", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
-                                .then(response => {
-                                    alert("Image Changed Successfully!");
-                                    window.location.reload(false);
-                                }
-                                ).catch(err => {
-                                    console.error(err);
-                                    setNetworkError(true)
-                                }
-                                )
-                        })
-                })
-        }).catch(err => {
-            handleErrors(err);
-        })
-    }
-
-    function uploadImg() {
-        axios.get("http://localhost:8080/img/file-name", { withCredentials: true }).then(response => {
-            let fileName = response.data;
-            let uploadTask;
-            if (croppedImgSrc === "") {
-                uploadTask = storage.ref(`/profiles/${fileName}`).put(newImgFile);
-            } else {
-                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: "image/jpg" });
-            }
-            //initiates the firebase side uploading 
-            uploadTask.on('state_changed',
-                (snapShot) => {
-                    //takes a snap shot of the process as it is happening
-                    // console.log(snapShot)
-                }, (err) => {
-                    //catches the errors
-                    console.error(err);
-                    setNetworkError(true)
-                }, () => {
-                    // gets the functions from storage refences the image storage in firebase by the children
-                    // gets the download url then sets the image from firebase as the value for the imgUrl key:
-                    storage.ref(`profiles/${fileName}`).getDownloadURL()
-                        .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/upload", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
-                                .then(response => {
-                                    alert("Image Uploaded Successfully!");
-                                    window.location.reload(false);
-                                }
-                                ).catch(err => {
-                                    console.error(err);
-                                    setNetworkError(true)
-                                }
-                                )
-                        })
-                })
-        }).catch(err => {
-            handleErrors(err);
-        })
-    }
-
     const saveImg = (e) => {
         e.preventDefault();
         setAllErrorsToFalse();
@@ -135,19 +50,11 @@ const ImageSelector = (props) => {
         }
         //check if the user simply uploads or changes their profile picture
         if (props.isThereOldImg) {
-            uploadImg();
+            props.uploadImg();
         } else {
-            changeImg();
+            props.changeImg();
         }
 
-    }
-
-    const handleErrors = (error) => {
-        if (error.response && error.response.status === 403) {
-            setAuthError(true);
-        } else {
-            setNetworkError(true);
-        }
     }
 
     const onFileChangeHandler = (e) => {
@@ -161,14 +68,14 @@ const ImageSelector = (props) => {
 
         let file = e.target.files[0];
 
+        setNewImgFile(file);
+        setFileInputImage(URL.createObjectURL(file));
+
         // let reader = new FileReader();
         // reader.onloadend = () => {
         //     setNewImgUrl(reader.result) //and then its displayable
         // }
         // reader.readAsDataURL(file);
-
-        setNewImgFile(file);
-        setFileInputImage(URL.createObjectURL(file));
     };
 
     return (
@@ -176,7 +83,6 @@ const ImageSelector = (props) => {
             {unsupportedTypeError ? <h1 style={{ color: "red" }}>Unsupported Type! Only JPG/JPEG and PNG allowed!</h1> : null}
             {fileTooBig ? <h1 style={{ color: "red" }}>The file is too big! The maximum size is 10MB!</h1> : null}
             {networkError ? <h1 style={{ color: "red" }}>Sorry, unexpected Network Error occurred!</h1> : null}
-            {authError ? <h1 style={{ color: "red" }}>You have to log in or register!</h1> : null}
 
             {fileInputImage !== "" ?
                 <>
@@ -185,12 +91,12 @@ const ImageSelector = (props) => {
                     </h3>
                     <button onClick={() => {
                         setFileInputImage("");
-                        setCroppedImgSrc("");
+                        props.setCroppedImgSrc("");
                     }}>Clear Image</button>
 
                     <SelectAndCrop
                         image={fileInputImage}
-                        getCroppedImgSrc={setCroppedImgSrc}
+                        getCroppedImgSrc={props.setCroppedImgSrc}
                         allowUserControls={true}
                     />
                 </> :
@@ -199,11 +105,11 @@ const ImageSelector = (props) => {
                     <input id="file" style={{ display: "none" }} type="file" onChange={onFileChangeHandler}></input>
                 </div>}
 
-            {croppedImgSrc !== "" ?
+            {props.croppedImgSrc !== "" ?
                 <>
-                    <img alt="cropped" src={croppedImgSrc} />
+                    <img alt="cropped" src={props.croppedImgSrc} />
                     <div>
-                        <button onClick={() => { setCroppedImgSrc("") }}>Reset</button>
+                        <button onClick={() => { props.setCroppedImgSrc("") }}>Reset</button>
                     </div>
                 </>
                 :
