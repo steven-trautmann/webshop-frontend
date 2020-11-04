@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import fileDownload from "js-file-download";
 import ImageSelector from "./ImageSelector";
 import { storage } from '../firebase/FireBase';
 import SelectAndCrop from "./ImageCropper";
@@ -12,15 +13,27 @@ const UserPage = (props) => {
     const [croppedImgSrc, setCroppedImgSrc] = useState("");
     const [inputFileUrl, setInputFileUrl] = useState("");
     const [newImgFile, setNewImgFile] = useState();
+    const [oldImgType, setOldImgType] = useState("");
+    const [newImgType, setNewImgType] = useState("");
 
     useEffect(() => {
-        axios.get("http://localhost:8080/img/profile-url", { withCredentials: true })
+        axios.get("http://localhost:8080/img/profile-img-data", { withCredentials: true })
             .then(response => {
-                setOldImgUrl(response.data);
+                setOldImgUrl(response.data.url);
+                setOldImgType(response.data.type);
             }).catch(err => {
                 handleErrors(err)
             })
-    }, [oldImgUrl])
+    }, [])
+
+    const handleDownload = () => {
+        axios.get(oldImgUrl, {
+            responseType: 'blob',
+        })
+            .then((res) => {
+                fileDownload(res.data, localStorage.getItem("username") + "." + oldImgType)
+            })
+    }
 
     const handleErrors = (error) => {
         if (error.response && error.response.status === 403) {
@@ -37,7 +50,7 @@ const UserPage = (props) => {
             if (croppedImgSrc === "") {
                 uploadTask = storage.ref(`/profiles/${fileName}`).put(newImgFile);
             } else {
-                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: "image/jpg" });
+                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: `image/${newImgType}` });
             }
             //initiates the firebase side uploading 
             uploadTask.on('state_changed',
@@ -53,7 +66,7 @@ const UserPage = (props) => {
                     // gets the download url then sets the image from firebase as the value for the imgUrl key:
                     storage.ref(`profiles/${fileName}`).getDownloadURL()
                         .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/upload", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
+                            axios.post("http://localhost:8080/img/upload", { user_id: fileName, url: fireBaseUrl, imageType: newImgType }, { withCredentials: true })
                                 .then(response => {
                                     alert("Image Uploaded Successfully!");
                                     window.location.reload(false);
@@ -78,7 +91,7 @@ const UserPage = (props) => {
             if (croppedImgSrc === "") {
                 uploadTask = storage.ref(`/profiles/${fileName}`).put(newImgFile);
             } else {
-                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: "image/jpg" });
+                uploadTask = storage.ref(`/profiles/${fileName}`).putString(croppedImgSrc, "data_url", { contentType: `image/${newImgType}` });
             }
             //initiates the firebase side uploading 
             uploadTask.on('state_changed',
@@ -94,7 +107,7 @@ const UserPage = (props) => {
                     // gets the download url then sets the image from firebase as the value for the imgUrl key:
                     storage.ref(`profiles/${fileName}`).getDownloadURL()
                         .then(fireBaseUrl => {
-                            axios.post("http://localhost:8080/img/change", { user_id: fileName, url: fireBaseUrl }, { withCredentials: true })
+                            axios.post("http://localhost:8080/img/change", { user_id: fileName, url: fireBaseUrl, imageType: newImgType }, { withCredentials: true })
                                 .then(response => {
                                     alert("Image Changed Successfully!");
                                     window.location.reload(false);
@@ -123,7 +136,21 @@ const UserPage = (props) => {
                     :
                     <>
                         <img style={{ display: "block", margin: "auto", maxWidth: "20rem", minWidth: "16rem" }} alt="profile" src={oldImgUrl} />
-                        {newImgFile == null ? <button style={{ display: "block", margin: "auto" }} onClick={() => { setModifyImg(!modifyImg); setCroppedImgSrc("") }}>{modifyImg ? "Cancel" : "Modify Image"}</button> : null}
+                        <button onClick={() => { handleDownload("test.jpg") }}>
+                            Download File
+                        </button>
+                        {newImgFile == null ? <button style={{ display: "block", margin: "auto" }}
+                            onClick={() => {
+                                if (modifyImg === true) {
+                                    setNewImgType("");
+                                } else {
+                                    setNewImgType(oldImgType);
+                                }
+                                setModifyImg(!modifyImg);
+                                setCroppedImgSrc("");
+                            }}>
+                            {modifyImg ? "Cancel" : "Modify Image"}
+                        </button> : null}
                     </>
                 }
                 {!modifyImg ?
@@ -138,6 +165,7 @@ const UserPage = (props) => {
                         setNewImgFile={setNewImgFile}
                         inputFileUrl={inputFileUrl}
                         setInputFileUrl={setInputFileUrl}
+                        setNewImgType={setNewImgType}
                     />
                     : null
                 }

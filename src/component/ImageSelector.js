@@ -12,6 +12,13 @@ const ImageSelector = (props) => {
         return file && acceptedImageTypes.includes(file['type']);
     }
 
+    function getImgType(img) {
+        let imgType = img['type'];
+        if (imgType === 'image/jpg') return "jpg";
+        if (imgType === 'image/jpeg') return "jpeg";
+        if (imgType === 'image/png') return "png";
+    }
+
     //and set the error handlers
     function checkIfFileIsAppropriate(file) {
         if (file == null) {
@@ -60,11 +67,14 @@ const ImageSelector = (props) => {
         e.preventDefault();
 
         setAllErrorsToFalse();
-        if (!checkIfFileIsAppropriate(e.target.files[0])) {
+        let file = e.target.files[0];
+
+        if (!checkIfFileIsAppropriate(file)) {
             return;
         }
 
-        let file = e.target.files[0];
+        console.log(getImgType(file));
+        props.setNewImgType(getImgType(file))
 
         props.setInputFileUrl(URL.createObjectURL(file));
         props.setNewImgFile(file);
