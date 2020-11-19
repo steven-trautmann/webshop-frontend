@@ -41,13 +41,6 @@ describe('<App />', () => {
         expect(getByText(/Send/i)).toBeInTheDocument();
     })
 
-    it('is there an element with label of E-mail', () => {
-        window.history.pushState({}, "", "/registration")
-        const { getByText } = render(<App />, { wrapper: BrowserRouter })
-
-        expect(getByText(/E-mail/i)).toBeInTheDocument();
-    })
-
     it("should throw error if email is invalid", () => {
         window.history.pushState({}, "", "/registration")
         const { getByLabelText, getByText, queryByText } = render(<App />, { wrapper: BrowserRouter })
