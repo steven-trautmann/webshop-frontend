@@ -32,7 +32,6 @@ describe('<App />', () => {
         window.history.pushState({}, "", "/")
         const { getByText } = render(<App />, { wrapper: BrowserRouter })
 
-
         expect(getByText(/Regis/i)).toBeInTheDocument();
 
         userEvent.click(screen.getByText(/Regis/i))
@@ -56,6 +55,5 @@ describe('<App />', () => {
         userEvent.click(getByText(/Send/i))
 
         expect(getByText(/Invalid/i)).toBeInTheDocument()
-
     })
 })
