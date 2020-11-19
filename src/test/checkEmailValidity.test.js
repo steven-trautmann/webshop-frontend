@@ -49,9 +49,9 @@ describe('<App />', () => {
 
         expect(queryByText(/Invalid/i)).not.toBeInTheDocument();
 
-        userEvent.type(getByLabelText(/E-mail/i), "kurva szád lol")
+        userEvent.type(getByLabelText(/E-mail/i), "invalidEmail")
 
-        expect(getByLabelText(/E-mail/i)).toHaveValue("kurva szád lol");
+        expect(getByLabelText(/E-mail/i)).toHaveValue("invalidEmail");
 
         userEvent.click(getByText(/Send/i))
 
