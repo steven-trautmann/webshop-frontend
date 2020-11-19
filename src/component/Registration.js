@@ -676,7 +676,7 @@ function Registration() {
           {missingInputs ? <p className="speech-bubble">You need to fill out all input fields to Register!</p> : null}
           <button className="buttons" onClick={sendUserRegistrationData}>
             Send
-        </button>
+          </button>
         </div>
       </div>
     );

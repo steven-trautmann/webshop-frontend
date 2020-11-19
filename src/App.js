@@ -4,15 +4,21 @@ import Header from "./layout/Header";
 import Registration from "./component/Registration";
 import Login from "./component/Login";
 import UserPage from "./component/UserPage";
+import { LoggedInContextProvider } from "./context/LoggedInContext";
+import { InnerWidthProvider } from "./context/InnerWidthContext"
 
 function App() {
   return (
     <div>
       <Router>
-        <Header />
-        <Route exact path="/registration" component={Registration} />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/user" component={UserPage} />
+        <InnerWidthProvider>
+          <LoggedInContextProvider>
+            <Header />
+            <Route exact path="/registration" component={Registration} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/user" component={UserPage} />
+          </LoggedInContextProvider>
+        </InnerWidthProvider>
       </Router>
     </div>
   );
