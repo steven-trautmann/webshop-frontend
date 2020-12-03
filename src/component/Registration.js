@@ -5,6 +5,7 @@ import "../style/speech-bubble.css";
 import { LoggedInContext } from "../context/LoggedInContext";
 import { InnerWidthContext } from "../context/InnerWidthContext";
 import moment from "moment";
+import { motion } from "framer-motion"
 
 function Registration() {
 
@@ -490,9 +491,13 @@ function Registration() {
       <div className="forms">
         {unnkownError ? <h3 style={{ textAlign: "center" }}>We're deeply sorry, unexpected error occured!</h3> : null}
         <div className="form-fields">
-          <label className="labels" htmlFor="usern">
-            Username: {userNameIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
-          </label>
+            <motion.label 
+            className="labels" htmlFor="usern" 
+            initial={{ opacity: 0, x: "-5vw" }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, y: -50 }}>
+              Username: {userNameIsUnique ? null : <p style={{ color: "red", margin: "0", marginLeft: "1rem" }}>Already in use!</p>}
+            </motion.label>
           <input
             className="inputs"
             type="text"
@@ -504,9 +509,9 @@ function Registration() {
             onKeyDown={handleEnterKeydown}
           ></input>
 
-          <label className="labels" htmlFor="fname">
+          <motion.label className="labels" htmlFor="fname" initial={{ opacity: 0, x: "-5vw" }} animate={{ opacity: 1, x: 0 }}>
             First name:
-        </label>
+        </motion.label>
           <input
             className="inputs"
             type="text"
@@ -518,9 +523,9 @@ function Registration() {
             onKeyDown={handleEnterKeydown}
           ></input>
 
-          <label className="labels" htmlFor="lname">
+          <motion.label className="labels" htmlFor="lname" initial={{ opacity: 0, x: "-5vw" }} animate={{ opacity: 1, x: 0 }}>
             Last name:
-        </label>
+        </motion.label>
           <input
             className="inputs"
             type="text"
